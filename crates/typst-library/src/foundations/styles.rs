@@ -15,7 +15,7 @@ use crate::diag::{SourceResult, Trace, Tracepoint};
 use crate::engine::Engine;
 use crate::foundations::{
     Content, Context, Element, Field, Func, NativeElement, OneOrMultiple, Packed,
-    RefableProperty, Repr, Selector, SettableProperty, Target, cast, ty,
+    RefableProperty, Repr, Selector, SettableProperty, Target, Value, cast, ty,
 };
 use crate::introspection::TagElem;
 
@@ -505,7 +505,7 @@ impl Recipe {
             Transformation::Func(func) => {
                 // Add the definition site of the show rule to the trace.
                 let mut result =
-                    func.call_traced(engine, context, [content.clone()], self.span);
+                    func.call::<Value>(engine, context, [content.clone()], self.span);
 
                 // Add application site of the show rule to the trace.
                 if self.selector.is_some() {

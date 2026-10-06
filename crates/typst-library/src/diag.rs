@@ -632,7 +632,7 @@ pub trait CallSpanned {
     ) -> SourceResult<T>;
 }
 
-impl CallSpanned for Spanned<Func> {
+impl<const SPAN_EQ: bool> CallSpanned for Spanned<Func, Span, SPAN_EQ> {
     fn call<T: FromValue>(
         &self,
         engine: &mut Engine,

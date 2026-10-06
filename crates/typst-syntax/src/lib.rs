@@ -33,6 +33,7 @@ pub use self::path::{
 pub use self::source::Source;
 pub use self::span::{
     DiagSpan, DiagSpanKind, RangeMapper, Span, SpanKind, SpanNumber, Spanned, SubRange,
+    Unspanned,
 };
 
 use self::lexer::Lexer;

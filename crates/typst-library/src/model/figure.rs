@@ -3,7 +3,7 @@ use std::num::NonZeroUsize;
 use std::str::FromStr;
 
 use ecow::EcoString;
-use typst_syntax::{Span, Spanned};
+use typst_syntax::{Span, Spanned, Unspanned};
 use typst_utils::NonZeroExt;
 
 use crate::diag::{SourceResult, Trace, Tracepoint, bail};
@@ -292,7 +292,7 @@ pub struct FigureElem {
     ///   kind: "foo",
     /// )
     /// ```
-    pub supplement: Spanned<Smart<Option<Supplement>>>,
+    pub supplement: Unspanned<Smart<Option<Supplement>>>,
 
     /// How to number the figure. Accepts a
     /// @numbering[numbering pattern or function] taking a single number.

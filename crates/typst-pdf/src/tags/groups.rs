@@ -58,16 +58,24 @@ pub struct RefInfo {
     /// The groups of each footnote entry. There are several when the footnote runs on
     /// to another page.
     pub note_parts: FxHashMap<Location, Vec<GroupId>>,
+    /// The locations whose tag something refers to. Only these get an id. Filled in
+    /// just before the tags are resolved.
+    pub used: rustc_hash::FxHashSet<Location>,
 }
 
 impl RefInfo {
     /// The id of the tag that the location leads to, if there is one.
     pub fn target(&self, loc: Location) -> Option<krilla::tagging::TagId> {
+        self.target_loc(loc).map(tag_id)
+    }
+
+    /// The location of the element whose tag the location leads to, if there is one.
+    pub fn target_loc(&self, loc: Location) -> Option<Location> {
         // An alias can lead to another alias, when what it stood for lost its tag.
         let mut loc = loc;
         for _ in 0..8 {
             if self.tag_locs.contains_key(&loc) {
-                return Some(tag_id(loc));
+                return Some(loc);
             }
             loc = *self.alias.get(&loc)?;
         }

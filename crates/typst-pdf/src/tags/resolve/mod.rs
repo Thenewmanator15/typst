@@ -71,6 +71,42 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
         return Ok((doc_lang, TagTree::new()));
     }
 
+    // Prototype: work out which tags something refers to, so that only they get an id.
+    // Ids are only used for this in PDF 2.0.
+    let pdf20 = gc.options.version() >= krilla::configure::PdfVersion::Pdf20;
+    if pdf20 {
+        let groups = &gc.tags.tree.groups;
+        let refs = &groups.refs;
+        let mut used = rustc_hash::FxHashSet::default();
+        // What links lead to, and for footnotes the links that cite them.
+        for (link, dest) in &refs.link_dests {
+            used.extend(refs.target_loc(*dest));
+            if refs.note_parts.contains_key(dest) {
+                used.extend(refs.target_loc(*link));
+            }
+        }
+        // What named destinations lead to.
+        for loc in gc.loc_to_names.keys() {
+            used.extend(refs.target_loc(*loc));
+        }
+        for group in groups.list.iter() {
+            match &group.kind {
+                // What outline entries list.
+                GroupKind::OutlineEntry(entry, _) => {
+                    used.extend(entry.element.location().and_then(|l| refs.target_loc(l)));
+                }
+                // Headings, which bookmarks lead to.
+                GroupKind::Standard(tag, _)
+                    if matches!(groups.tags.get(*tag), TagKind::Hn(_)) =>
+                {
+                    used.extend(group.loc.and_then(|l| refs.target_loc(l)));
+                }
+                _ => {}
+            }
+        }
+        gc.tags.tree.groups.refs.used = used;
+    }
+
     let mut resolver = Resolver {
         options: gc.options,
         ctx: &gc.tags.tree.ctx,
@@ -83,7 +119,6 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
         errors: std::mem::take(&mut gc.tags.tree.errors),
     };
 
-    let pdf20 = gc.options.version() >= krilla::configure::PdfVersion::Pdf20;
     let mut accum = Accumulator::root(pdf20);
     accum.reserve(root.nodes().len());
 
@@ -336,8 +371,10 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
     // Prototype: the tag of an element gets an id made from the element's location, so
     // that destinations and other tags can refer to it.
     let refs = rs.refs;
+    let pdf20 = rs.options.version() >= krilla::configure::PdfVersion::Pdf20;
     if let Some(loc) = group.loc
         && refs.tag_locs.get(&loc) == Some(&id)
+        && refs.used.contains(&loc)
         && tag.as_any().id().is_none()
     {
         tag.as_any_mut().set_id(Some(tag_id(loc)));
@@ -347,6 +384,7 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         && let Some(parts) = refs.note_parts.get(&loc)
         && let Some(part) = parts.iter().position(|part| *part == id)
         && part > 0
+        && pdf20
         && tag.as_any().id().is_none()
     {
         tag.as_any_mut().set_id(Some(tag_part_id(loc, part)));
@@ -379,7 +417,7 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
             .collect(),
         _ => Vec::new(),
     };
-    if !targets.is_empty() {
+    if pdf20 && !targets.is_empty() {
         tag.as_any_mut().set_refs(Some(targets));
     }
 

@@ -44,8 +44,9 @@ pub struct RefInfo {
     /// The first group that produces a tag for the element at a location. Its tag gets
     /// an id made from the location, see [`tag_id`].
     pub tag_locs: FxHashMap<Location, GroupId>,
-    /// The location a link group leads to.
-    pub link_dests: FxHashMap<GroupId, Location>,
+    /// The location a link leads to, by the location of the link. A link can be split
+    /// into several groups, which all share the link's location.
+    pub link_dests: FxHashMap<Location, Location>,
     /// The locations of the link groups that lead to a location.
     pub citations: FxHashMap<Location, Vec<Location>>,
     /// Locations that have no tag of their own and stand for another one. A footnote
@@ -54,6 +55,9 @@ pub struct RefInfo {
     pub alias: FxHashMap<Location, Location>,
     /// The footnotes whose alias is the link with their number.
     pub footnotes: rustc_hash::FxHashSet<Location>,
+    /// The groups of each footnote entry. There are several when the footnote runs on
+    /// to another page.
+    pub note_parts: FxHashMap<Location, Vec<GroupId>>,
 }
 
 impl RefInfo {
@@ -74,6 +78,15 @@ impl RefInfo {
 /// The id of the tag of the element at a location.
 pub fn tag_id(loc: Location) -> krilla::tagging::TagId {
     krilla::tagging::TagId::from(format!("L{:x}", loc.hash()).into_bytes())
+}
+
+/// The id of a later part of an element that is tagged in several parts.
+pub fn tag_part_id(loc: Location, part: usize) -> krilla::tagging::TagId {
+    if part == 0 {
+        tag_id(loc)
+    } else {
+        krilla::tagging::TagId::from(format!("L{:x}-{part}", loc.hash()).into_bytes())
+    }
 }
 
 impl Groups {

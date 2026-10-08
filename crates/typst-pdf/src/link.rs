@@ -120,11 +120,11 @@ pub(crate) fn handle_link(
     let link_loc = link.location();
 
     // Prototype: remember what this link leads to, for the refs of the tags.
-    if let Some(dest_loc) = dest_loc {
+    if let Some(dest_loc) = dest_loc
+        && let Some(link_loc) = link_loc
+    {
         let refs = &mut gc.tags.tree.groups.refs;
-        if refs.link_dests.insert(group_id, dest_loc).is_none()
-            && let Some(link_loc) = link_loc
-        {
+        if refs.link_dests.insert(link_loc, dest_loc).is_none() {
             refs.citations.entry(dest_loc).or_default().push(link_loc);
         }
     }

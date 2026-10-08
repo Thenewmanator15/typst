@@ -12,7 +12,9 @@ use typst_syntax::Span;
 use crate::PdfOptions;
 use crate::convert::{GlobalContext, to_span};
 use crate::tags::context::{self, Annotations, BBoxCtx, Ctx};
-use crate::tags::groups::{Group, GroupId, GroupKind, RefInfo, TagStorage, tag_id};
+use crate::tags::groups::{
+    Group, GroupId, GroupKind, RefInfo, TagStorage, tag_id, tag_part_id,
+};
 use crate::tags::resolve::accumulator::Accumulator;
 use crate::tags::tree::ResolvedTextAttrs;
 use crate::tags::util::{self, IdVec, PropertyOptRef, PropertyValCopied};
@@ -340,17 +342,34 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
     {
         tag.as_any_mut().set_id(Some(tag_id(loc)));
     }
+    // A later part of a footnote that runs on to another page.
+    if let Some(loc) = group.loc
+        && let Some(parts) = refs.note_parts.get(&loc)
+        && let Some(part) = parts.iter().position(|part| *part == id)
+        && part > 0
+        && tag.as_any().id().is_none()
+    {
+        tag.as_any_mut().set_id(Some(tag_part_id(loc, part)));
+    }
     let targets: Vec<kt::TagId> = match &group.kind {
         // An outline entry refers to the element it lists.
         GroupKind::OutlineEntry(entry, _) => (entry.element.location())
             .and_then(|target| refs.target(target))
             .into_iter()
             .collect(),
-        // A link refers to the element it leads to.
-        GroupKind::Link(..) => (refs.link_dests.get(&id).copied())
-            .and_then(|target| refs.target(target))
-            .into_iter()
-            .collect(),
+        // A link refers to the element it leads to. Of a split link, only the group
+        // that carries the id does, so that what it refers to can refer back.
+        GroupKind::Link(..) => (group.loc)
+            .filter(|loc| refs.tag_locs.get(loc) == Some(&id))
+            .and_then(|loc| refs.link_dests.get(&loc).copied())
+            .map(|target| {
+                // Every part of a footnote that runs on to another page.
+                let later = (refs.note_parts.get(&target).map_or(0, Vec::len)).max(1);
+                (refs.target(target).into_iter())
+                    .chain((1..later).map(move |part| tag_part_id(target, part)))
+                    .collect()
+            })
+            .unwrap_or_default(),
         // A footnote refers back to the links that lead to it.
         _ if matches!(tag, TagKind::Note(_)) => (group.loc)
             .and_then(|loc| refs.citations.get(&loc))

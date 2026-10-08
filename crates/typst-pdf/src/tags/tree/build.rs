@@ -530,7 +530,12 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
     } else if let Some(_) = elem.to_packed::<FootnoteElem>() {
         push_located(tree, elem, GroupKind::LogicalParent(elem.clone()))
     } else if let Some(_) = elem.to_packed::<FootnoteEntry>() {
-        push_tag(tree, elem, Tag::Note)
+        let id = push_tag(tree, elem, Tag::Note);
+        // Prototype: keep every part of a footnote that runs on to another page.
+        if let Some(loc) = elem.location() {
+            tree.groups.refs.note_parts.entry(loc).or_default().push(id);
+        }
+        id
     } else if let Some(quote) = elem.to_packed::<QuoteElem>() {
         // TODO: should the attribution be handled somehow?
         if quote.block.val() {

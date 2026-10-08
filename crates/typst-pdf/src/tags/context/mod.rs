@@ -240,7 +240,12 @@ fn alias_flattened(tree: &mut Tree) {
             if parent == crate::tags::GroupId::ROOT || ancestor.parent == parent {
                 break;
             }
-            parent = ancestor.parent;
+            // A footnote entry sits at the foot of the page, inside whatever happens to
+            // be open there, but it belongs to the place where it is cited. Follow that.
+            parent = match ancestor.kind {
+                crate::tags::groups::GroupKind::LogicalChild(_, logical) => logical,
+                _ => ancestor.parent,
+            };
         }
         if let Some(outer) = outer {
             flattened.push((loc, outer));

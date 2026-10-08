@@ -522,9 +522,13 @@ impl<'a> Runner<'a> {
 
                         #[cfg(target_family = "unix")]
                         std::os::unix::fs::symlink(&link_path, &live_path).unwrap();
+                        // Local change: creating a symlink on Windows needs Developer Mode
+                        // or administrator rights, so fall back to a copy.
                         #[cfg(target_family = "windows")]
-                        std::os::windows::fs::symlink_file(&link_path, &live_path)
-                            .unwrap();
+                        if std::os::windows::fs::symlink_file(&link_path, &live_path).is_err()
+                        {
+                            std::fs::copy(&hash_path, &live_path).unwrap();
+                        }
                     }
                 }
             }

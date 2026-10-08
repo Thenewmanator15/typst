@@ -1,0 +1,54 @@
+   Compiling krilla v0.8.2 (G:\dev\projects\krilla-typst-pin\crates\krilla)
+warning: use of deprecated constant `std::f32::INFINITY`: replaced by the `INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:190:30
+    |
+190 |         let mut min_x = f32::INFINITY;
+    |                              ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated constant `std::f32::INFINITY`: replaced by the `INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:191:30
+    |
+191 |         let mut min_y = f32::INFINITY;
+    |                              ^^^^^^^^
+
+warning: use of deprecated constant `std::f32::NEG_INFINITY`: replaced by the `NEG_INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:192:30
+    |
+192 |         let mut max_x = f32::NEG_INFINITY;
+    |                              ^^^^^^^^^^^^
+
+warning: use of deprecated constant `std::f32::NEG_INFINITY`: replaced by the `NEG_INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:193:30
+    |
+193 |         let mut max_y = f32::NEG_INFINITY;
+    |                              ^^^^^^^^^^^^
+
+   Compiling krilla-svg v0.8.1 (G:\dev\projects\krilla-typst-pin\crates\krilla-svg)
+   Compiling typst-pdf v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-pdf)
+   Compiling typst-bundle v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-bundle)
+   Compiling typst-kit v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-kit)
+warning: `krilla` (lib) generated 4 warnings
+   Compiling typst-tests v0.15.1 (G:\dev\projects\typst-ua2-prototype\tests)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.13s
+     Running src\tests.rs (target\debug\deps\tests-e3a8d620f839d152.exe)
+❌ line-numbers-pdf-2-0 (tests/suite\layout\line-numbers.typ:261)
+  mismatched output
+    live      | tests/store/pdf/line-numbers-pdf-2-0.pdf
+    old       | 8379755d3ca8325db0a2a58809642952
+    new       | 958d813d4c4117cf82c196c588b17608
+    missing old live output tests/store\by-hash\8379755d3ca8325db0a2a58809642952_line-numbers-pdf-2-0.pdf
+❌ background-artifact-2-0 (tests/suite\pdftags\disable.typ:74)
+  mismatched output
+    live      | tests/store/pdf/background-artifact-2-0.pdf
+    old       | 9247cba98bc56d8177e3568731eacafb
+    new       | 23659b48a3eea8623f1c2fd447ea8316
+    missing old live output tests/store\by-hash\9247cba98bc56d8177e3568731eacafb_background-artifact-2-0.pdf
+53 passed, 2 failed, 3737 skipped
+  pass '--update' to update error annotations or reference outputs
+  for a rich diff, view tests/store/report.html
+error: test failed, to rerun pass `-p typst-tests --test tests`
+
+Caused by:
+  process didn't exit successfully: `G:\dev\projects\typst-ua2-prototype\target\debug\deps\tests-e3a8d620f839d152.exe outline cite-chicago 2-0 line-numbers background-artifact` (exit code: 15)

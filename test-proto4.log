@@ -1,0 +1,367 @@
+   Compiling krilla v0.8.2 (G:\dev\projects\krilla-typst-pin\crates\krilla)
+warning: use of deprecated constant `std::f32::INFINITY`: replaced by the `INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:190:30
+    |
+190 |         let mut min_x = f32::INFINITY;
+    |                              ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated constant `std::f32::INFINITY`: replaced by the `INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:191:30
+    |
+191 |         let mut min_y = f32::INFINITY;
+    |                              ^^^^^^^^
+
+warning: use of deprecated constant `std::f32::NEG_INFINITY`: replaced by the `NEG_INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:192:30
+    |
+192 |         let mut max_x = f32::NEG_INFINITY;
+    |                              ^^^^^^^^^^^^
+
+warning: use of deprecated constant `std::f32::NEG_INFINITY`: replaced by the `NEG_INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:193:30
+    |
+193 |         let mut max_y = f32::NEG_INFINITY;
+    |                              ^^^^^^^^^^^^
+
+   Compiling krilla-svg v0.8.1 (G:\dev\projects\krilla-typst-pin\crates\krilla-svg)
+   Compiling typst-pdf v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-pdf)
+   Compiling typst-bundle v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-bundle)
+   Compiling typst-kit v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-kit)
+   Compiling typst-fuzz v0.15.1 (G:\dev\projects\typst-ua2-prototype\tests\fuzz)
+warning: `krilla` (lib) generated 4 warnings
+   Compiling typst v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst)
+   Compiling typst-ide v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-ide)
+   Compiling typst-cli v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-cli)
+   Compiling typst-tests v0.15.1 (G:\dev\projects\typst-ua2-prototype\tests)
+   Compiling typst-docs v0.15.1 (G:\dev\projects\typst-ua2-prototype\docs)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 40.51s
+     Running unittests src\main.rs (target\debug\deps\test_wrapper-9bd481632438d0ff.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst-3968ea0ccab6753f.exe)
+
+running 1 test
+test tests::formats ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_bundle-a8b7fbc581236736.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\typst-88f1a0eacbeb4297.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\smoke.rs (target\debug\deps\smoke-7ed09c44aef15ab5.exe)
+
+running 23 tests
+test test_fonts_embedded ... ok
+test test_info ... ok
+test test_help ... ok
+test test_compile_pdf_untagged_and_accessible_standard ... ok
+test test_compile_no_pdf_tags_deprecated ... ok
+test test_compile_pdf_tagged_and_pages ... ok
+test test_compile_pages_warning_untagged ... ok
+test test_network_access_hint ... ok
+test test_compile_pdf ... ok
+test test_path_project_root ... ok
+test test_package_unresolved ... ok
+test test_path_resolved ... ok
+test test_deps ... ok
+test test_path_to_package ... ok
+test test_package_resolved ... ok
+test test_path_unresolved ... ok
+test test_tracepoints ... ok
+test test_fonts_empty_path ... ok
+test test_fonts_path ... ok
+test test_eval ... ok
+test test_compile_png_default_ppi ... ok
+test test_target_available ... ok
+test test_compile_pdf_version ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s
+
+     Running unittests src\main.rs (target\debug\deps\typst_docs-f4dd786e3aea7a25.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_eval-e966e325b8e37707.exe)
+
+running 2 tests
+test call::tests::test_captures_in_math ... ok
+test call::tests::test_captures ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_fuzz-71cc24a188361b43.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_html-f75cd264ef882b05.exe)
+
+running 2 tests
+test typed::tests::test_tags_and_attr_const_internible ... ok
+test dom::tests::test_iter_with_dom_indices ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_ide-51efe75687f9620e.exe)
+
+running 77 tests
+test complete::tests::test_autocomplete_figure_snippets ... ok
+test complete::tests::test_autocomplete_import_items ... ok
+test complete::tests::test_autocomplete_in_destructuring ... ok
+test complete::tests::test_autocomplete_packages ... ok
+test complete::tests::test_autocomplete_in_dict_literal ... ok
+test complete::tests::test_autocomplete_fonts ... ok
+test complete::tests::test_autocomplete_before_window_char_boundary ... ok
+test complete::tests::test_autocomplete_positional_param ... ok
+test complete::tests::test_autocomplete_file_path_with_prefix ... ok
+test complete::tests::test_autocomplete_file_path ... ok
+test complete::tests::test_autocomplete_in_function_params_after_comma_and_colon ... ok
+test complete::tests::test_autocomplete_hash_expr ... ok
+test complete::tests::test_autocomplete_math_scope ... ok
+test complete::tests::test_autocomplete_ref_shorthand ... ok
+test complete::tests::test_autocomplete_ref_function ... ok
+test complete::tests::test_autocomplete_user_function ... ok
+test complete::tests::test_autocomplete_ref_identical_labels_returns_single_completion ... ok
+test complete::tests::test_autocomplete_user_function_params ... ok
+test complete::tests::test_autocomplete_ref_shorthand_with_partial_identifier ... ok
+test definition::tests::test_definition_cross_file ... ok
+test complete::tests::test_autocomplete_content_methods ... ok
+test complete::tests::test_autocomplete_array_method ... ok
+test definition::tests::test_definition_import ... ok
+test definition::tests::test_definition_include ... ok
+test complete::tests::test_autocomplete_value_filter ... ok
+test definition::tests::test_definition_field_access_function ... ok
+test complete::tests::test_autocomplete_type_methods ... ok
+test definition::tests::test_definition_let ... ok
+test complete::tests::test_autocomplete_typed_html ... ok
+test complete::tests::test_autocomplete_in_list_literal ... ok
+test definition::tests::test_definition_std ... ok
+test jump::tests::test_jump_from_click ... ok
+test definition::tests::test_definition_ref ... ok
+test jump::tests::test_jump_from_click_html_bindings ... ok
+test jump::tests::test_jump_from_click_html_offset_units ... ok
+test jump::tests::test_jump_from_click_html ... ok
+test jump::tests::test_jump_from_click_par_indents ... ok
+test jump::tests::test_footnote_link_entry_customized ... ok
+test jump::tests::test_jump_from_click_html_figcaption ... ok
+test jump::tests::test_jump_from_click_math ... ok
+test jump::tests::test_jump_from_cursor ... ok
+test jump::tests::test_jump_from_cursor_math ... ok
+test jump::tests::test_footnote_links ... ok
+test matchers::tests::test_named_items_import ... ok
+test matchers::tests::test_named_items_simple ... ok
+test jump::tests::test_jump_from_click_html_frame ... ok
+test jump::tests::test_jump_from_click_shapes_stroke ... ok
+test matchers::tests::test_named_items_param ... ok
+test matchers::tests::test_named_items_import_items ... ok
+test jump::tests::test_jump_from_cursor_transform ... ok
+test tooltip::tests::test_tooltip ... ok
+test tooltip::tests::test_tooltip_empty_contextual ... ok
+test jump::tests::test_jump_from_click_shapes ... ok
+test jump::tests::test_text_show_rule_jump ... ok
+test complete::tests::test_autocomplete_bracket_mode ... ok
+test tooltip::tests::test_tooltip_import ... ok
+test tooltip::tests::test_tooltip_star_import ... ok
+test tooltip::tests::test_tooltip_field_call ... ok
+test jump::tests::test_jump_from_click_html_introspection ... ok
+test tooltip::tests::test_tooltip_math_field_access ... ok
+test tooltip::tests::test_tooltip_closure ... ok
+test tooltip::tests::test_tooltip_user_function_in_math ... ok
+test tooltip::tests::test_tooltip_user_function ... ok
+test tooltip::tests::test_tooltip_set ... ok
+test jump::tests::test_jump_from_click_transform_clip ... ok
+test complete::tests::test_autocomplete_field_access ... ok
+test tooltip::tests::test_tooltip_reference ... ok
+test tooltip::tests::test_tooltip_math_literals ... ok
+test complete::tests::test_autocomplete_symbol_variants ... ok
+test complete::tests::test_autocomplete_math_func_call ... ok
+test tooltip::tests::test_tooltip_function_call ... ok
+test complete::tests::test_autocomplete_dot_whitespace ... ok
+test tooltip::tests::test_tooltip_math_function_call ... ok
+test complete::tests::test_autocomplete_dict_fields ... ok
+test complete::tests::test_autocomplete_argument_fields ... ok
+test utils::tests::test_summarize_font_family ... ok
+test complete::tests::test_autocomplete_cite_function ... ok
+
+test result: ok. 77 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_kit-11ea0ef0e1aa5f59.exe)
+
+running 5 tests
+test packages::tests::lazy_deserialize_index ... ok
+test files::tests::test_file_store_storage_reuse ... ok
+test files::tests::test_file_store_source_via_file ... ok
+test files::tests::test_file_store_bom ... ok
+test files::tests::test_file_store_cycles ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_layout-530ae48630b20aa7.exe)
+
+running 7 tests
+test document::tests::test_paged_document_is_send_and_sync ... ok
+test grid::lines::test::test_vline_splitting_without_gutter ... ok
+test grid::lines::test::test_hline_splitting_considers_absent_rows ... ok
+test grid::lines::test::test_vline_splitting_with_gutter_and_per_cell_stroke ... ok
+test grid::lines::test::test_vline_splitting_with_gutter_and_explicit_vlines ... ok
+test grid::lines::test::test_hline_splitting_without_gutter ... ok
+test grid::lines::test::test_hline_splitting_with_gutter_and_explicit_hlines ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_library-7be7f1d45d8f4784.exe)
+
+running 35 tests
+test foundations::bytes::tests::test_bytes_into_string_from_vec ... ok
+test foundations::bytes::tests::test_bytes_into_string_from_vec_error ... ok
+test foundations::bytes::tests::test_bytes_into_string_shared ... ok
+test foundations::bytes::tests::test_bytes_into_string_lone ... ok
+test foundations::decimal::tests::test_decimals_with_equal_scales_hash_identically ... ok
+test foundations::decimal::tests::test_decimal_negative_round ... ok
+test layout::angle::tests::test_angle_unit_conversion ... ok
+test foundations::decimal::tests::test_decimal_positive_round ... ok
+test foundations::decimal::tests::test_decimals_with_different_scales_hash_differently ... ok
+test foundations::repr::tests::test_to_base ... ok
+test text::font::info::tests::test_coverage ... ok
+test text::font::info::tests::test_coverage_iter ... ok
+test foundations::value::tests::test_value_size ... ok
+test layout::abs::tests::test_length_unit_conversion ... ok
+test text::font::book::tests::test_find_best_variant ... ok
+test text::font::info::tests::test_coverage_union ... ok
+test foundations::content::raw::tests::test_miri ... ok
+test foundations::value::tests::test_value_debug ... ok
+test foundations::path::tests::test_resolve ... ok
+test text::font::info::tests::test_trim_styles ... ok
+test text::font::variant::tests::test_font_stretch_debug ... ok
+test model::bibliography::tests::test_csl_source_cast_info_include_all_names ... ok
+test text::font::variant::tests::test_font_weight_distance ... ok
+test text::font::variant::tests::text_font_stretch_fmt ... ok
+test text::font::variations::tests::text_axis_value_fmt ... ok
+test text::lang::tests::test_region_option_eq ... ok
+test text::lang::tests::test_translations_sorted ... ok
+test text::tests::test_text_elem_size ... ok
+test text::tests::test_text_tag_parsing ... ok
+test visualize::color::tests::test_parse_color_strings ... ok
+test visualize::color::tests::test_parse_invalid_colors ... ok
+test text::lang::tests::test_all_translations_included ... ok
+test visualize::image::raster::tests::test_image_dpi ... ok
+test text::lang::tests::test_all_translation_files_formatted ... ok
+test model::bibliography::tests::test_bibliography_load_builtin_styles ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_macros-b7201e83b9a3f8c4.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_pdf-007f1b526f6d0f0c.exe)
+
+running 1 test
+test metadata::tests::test_timestamp_new_local ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_realize-d2687e5690883f9b.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_render-7132f7c19683b757.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_svg-7e07504159734e08.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\typst_syntax-c479a41552d19605.exe)
+
+running 41 tests
+test ast::tests::test_expr_placeholder ... ok
+test lines::tests::test_source_file_pos_to_column ... ok
+test lines::tests::test_source_file_new ... ok
+test lines::tests::test_source_file_pos_to_line ... ok
+test lines::tests::test_source_file_edit ... ok
+test highlight::tests::test_highlighting ... ok
+test lines::tests::test_source_file_roundtrip ... ok
+test lines::tests::test_source_file_utf16 ... ok
+test node::tests::test_debug ... ok
+test node::tests::test_debug_sub_range ... ok
+test node::tests::test_linked_node ... ok
+test node::tests::test_linked_node_non_trivia_leaf ... ok
+test package::tests::version_version_match ... ok
+test package::tests::minimal_manifest ... ok
+test path::tests::test_file_ops ... ok
+test path::tests::test_join ... ok
+test package::tests::unknown_keys ... ok
+test package::tests::tool_section ... ok
+test path::tests::test_new ... ok
+test path::tests::test_realize ... ok
+test path::tests::test_realize_windows ... ok
+test path::tests::test_segment ... ok
+test path::tests::test_relative_from ... ok
+test path::tests::test_segments ... ok
+test path::tests::test_virtualize_windows ... ok
+test kind::test::test_mode_after ... ok
+test reparser::tests::test_reparse_basic ... ok
+test set::tests::test_set ... ok
+test source::test::test_source_sub_ranges ... ok
+test span::tests::test_diag_span_range ... ok
+test span::tests::test_range_mapper ... ok
+test span::tests::test_range_mapper_exhaustive ... ok
+test span::tests::test_span_detached ... ok
+test span::tests::test_span_number_encoding ... ok
+test span::tests::test_span_range_encoding ... ok
+test reparser::tests::test_reparse_block ... ok
+test span::tests::test_sub_range_constructor ... ok
+test span::tests::test_sub_range_mapping ... ok
+test span::tests::test_sub_range_saturating ... ok
+test reparser::tests::test_reparse_unclosed_embedded ... ok
+test reparser::tests::test_reparse_markup ... ok
+
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running src\tests.rs (target\debug\deps\tests-d918672766420eac.exe)
+❌ line-numbers-pdf-2-0 (tests/suite\layout\line-numbers.typ:261)
+  mismatched output
+    live      | tests/store/pdf/line-numbers-pdf-2-0.pdf
+    old       | 8379755d3ca8325db0a2a58809642952
+    new       | 958d813d4c4117cf82c196c588b17608
+    missing old live output tests/store\by-hash\8379755d3ca8325db0a2a58809642952_line-numbers-pdf-2-0.pdf
+❌ background-artifact-2-0 (tests/suite\pdftags\disable.typ:74)
+  mismatched output
+    live      | tests/store/pdf/background-artifact-2-0.pdf
+    old       | 9247cba98bc56d8177e3568731eacafb
+    new       | 23659b48a3eea8623f1c2fd447ea8316
+    missing old live output tests/store\by-hash\9247cba98bc56d8177e3568731eacafb_background-artifact-2-0.pdf
+3790 passed, 2 failed, 0 skipped
+  pass '--update' to update error annotations or reference outputs
+  for a rich diff, view tests/store/report.html
+error: test failed, to rerun pass `-p typst-tests --test tests`
+
+Caused by:
+  process didn't exit successfully: `G:\dev\projects\typst-ua2-prototype\target\debug\deps\tests-d918672766420eac.exe` (exit code: 15)

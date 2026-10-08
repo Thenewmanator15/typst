@@ -1,0 +1,268 @@
+   Compiling quote v1.0.45
+   Compiling syn v2.0.98
+   Compiling syn v3.0.3
+   Compiling synstructure v0.13.1
+   Compiling zerovec-derive v0.11.6
+   Compiling clap_derive v4.6.4
+   Compiling serde_derive v1.0.228
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling bytemuck_derive v1.10.2
+   Compiling displaydoc v0.2.5
+   Compiling thiserror-impl v2.0.18
+   Compiling zerocopy-derive v0.7.35
+   Compiling phf_macros v0.13.1
+   Compiling comemo-macros v0.5.1
+   Compiling enum-ordinalize-derive v4.3.2
+   Compiling strum_macros v0.27.2
+   Compiling palette_derive v0.7.6
+   Compiling typst-macros v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-macros)
+   Compiling tinystr v0.8.4
+   Compiling enum-ordinalize v4.3.2
+   Compiling unic-langid-impl v0.9.6
+   Compiling phf v0.13.1
+   Compiling comemo v0.5.1
+   Compiling chinese-number v0.7.8
+   Compiling zerocopy v0.7.35
+   Compiling unic-langid-macros-impl v0.9.6
+   Compiling ppv-lite86 v0.2.20
+   Compiling rand_chacha v0.3.1
+   Compiling lipsum v0.9.1
+   Compiling clap v4.6.6
+   Compiling bytemuck v1.25.0
+   Compiling font-types v0.11.3
+   Compiling tiny-skia-path v0.12.0
+   Compiling read-fonts v0.39.2
+   Compiling rustybuzz v0.20.1
+   Compiling image v0.25.10
+   Compiling zerofrom v0.1.8
+   Compiling color v0.3.3
+   Compiling thiserror v2.0.18
+   Compiling font-types v0.12.2
+   Compiling rgb v0.8.53
+   Compiling tiny-skia v0.12.0
+   Compiling cobs v0.3.0
+   Compiling read-fonts v0.41.0
+   Compiling oxipng v10.0.0
+   Compiling peniko v0.6.1
+   Compiling yoke v0.8.3
+   Compiling palette v0.7.6
+   Compiling strum v0.27.2
+   Compiling vello_common v0.0.9 (https://github.com/linebender/vello?rev=8442ef4#8442ef44)
+   Compiling usvg v0.47.0
+   Compiling vello_cpu v0.0.9 (https://github.com/linebender/vello?rev=8442ef4#8442ef44)
+   Compiling serde v1.0.228
+   Compiling zerovec v0.11.8
+   Compiling postcard v1.1.3
+   Compiling quick-xml v0.38.4
+   Compiling serde_json v1.0.138
+   Compiling zerotrie v0.2.5
+   Compiling icu_locale_core v2.3.0
+   Compiling potential_utf v0.1.5
+   Compiling icu_provider v2.3.0
+   Compiling icu_collections v2.3.0
+   Compiling icu_locale_fallback v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling unic-langid-macros v0.9.6
+   Compiling skrifa v0.42.1
+   Compiling toml_datetime v0.6.8
+   Compiling serde_spanned v0.6.8
+   Compiling unic-langid v0.9.6
+   Compiling plist v1.8.0
+   Compiling toml_edit v0.22.23
+   Compiling idna_adapter v1.2.2
+   Compiling bincode v1.3.3
+   Compiling idna v1.0.3
+   Compiling icu_collator v2.3.1
+   Compiling url v2.5.4
+   Compiling syntect v5.3.0
+   Compiling biblatex v0.12.0
+   Compiling toml v0.8.19
+   Compiling icu_locale v2.3.0
+   Compiling citationberg v0.7.0
+   Compiling typst-timing v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-timing)
+   Compiling ecow v0.2.6
+   Compiling ciborium v0.2.2
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling typst-syntax v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-syntax)
+   Compiling two-face v0.4.3
+   Compiling codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab9#2e43ab90)
+   Compiling hayagriva v0.10.1
+   Compiling csv v1.3.1
+   Compiling hayro-interpret v0.7.0 (https://github.com/LaurenzV/hayro?rev=d8e24e29eda62581e1ea15497effb2a884fb1608#d8e24e29)
+   Compiling typst-library v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-library)
+   Compiling icu_segmenter v2.3.0
+   Compiling icu_provider_blob v2.2.0
+   Compiling hayro v0.7.0 (https://github.com/LaurenzV/hayro?rev=d8e24e29eda62581e1ea15497effb2a884fb1608#d8e24e29)
+   Compiling hayro-svg v0.7.0 (https://github.com/LaurenzV/hayro?rev=d8e24e29eda62581e1ea15497effb2a884fb1608#d8e24e29)
+   Compiling write-fonts v0.48.1
+   Compiling skrifa v0.44.0
+   Compiling harfrust v0.12.0
+   Compiling resvg v0.47.0
+   Compiling env_proxy v0.4.1
+   Compiling ureq v2.12.1
+   Compiling subsetter v0.2.6
+   Compiling krilla v0.8.2 (G:\dev\projects\krilla-typst-pin\crates\krilla)
+warning: use of deprecated constant `std::f32::INFINITY`: replaced by the `INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:190:30
+    |
+190 |         let mut min_x = f32::INFINITY;
+    |                              ^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated constant `std::f32::INFINITY`: replaced by the `INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:191:30
+    |
+191 |         let mut min_y = f32::INFINITY;
+    |                              ^^^^^^^^
+
+warning: use of deprecated constant `std::f32::NEG_INFINITY`: replaced by the `NEG_INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:192:30
+    |
+192 |         let mut max_x = f32::NEG_INFINITY;
+    |                              ^^^^^^^^^^^^
+
+warning: use of deprecated constant `std::f32::NEG_INFINITY`: replaced by the `NEG_INFINITY` associated constant on `f32`
+   --> G:\dev\projects\krilla-typst-pin\crates\krilla\src\interactive\annotation.rs:193:30
+    |
+193 |         let mut max_y = f32::NEG_INFINITY;
+    |                              ^^^^^^^^^^^^
+
+   Compiling krilla-svg v0.8.1 (G:\dev\projects\krilla-typst-pin\crates\krilla-svg)
+   Compiling typst-layout v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-layout)
+   Compiling typst-eval v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-eval)
+   Compiling typst-svg v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-svg)
+   Compiling typst-html v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-html)
+   Compiling typst-render v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-render)
+   Compiling typst-pdf v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-pdf)
+   Compiling typst-realize v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-realize)
+   Compiling typst-bundle v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-bundle)
+   Compiling typst v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst)
+   Compiling typst-kit v0.15.1 (G:\dev\projects\typst-ua2-prototype\crates\typst-kit)
+warning: `krilla` (lib) generated 4 warnings
+   Compiling typst-tests v0.15.1 (G:\dev\projects\typst-ua2-prototype\tests)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3m 02s
+     Running src\tests.rs (target\debug\deps\tests-e3a8d620f839d152.exe)
+❌ line-numbers-pdf-2-0 (tests/suite\layout\line-numbers.typ:261)
+  mismatched output
+    live      | tests/store/pdf/line-numbers-pdf-2-0.pdf
+    old       | 8379755d3ca8325db0a2a58809642952
+    new       | 958d813d4c4117cf82c196c588b17608
+    missing old live output tests/store\by-hash\8379755d3ca8325db0a2a58809642952_line-numbers-pdf-2-0.pdf
+❌ cite-chicago-fullnotes-warning (tests/suite\model\cite.typ:165)
+  mismatched output
+    live      | tests/store/pdf/cite-chicago-fullnotes-warning.pdf
+    old       | ad4849f71b1eb528a406e1b1c1d24b8e
+    new       | 4afa46246bd00fb179fc5066be543d0f
+    missing old live output tests/store\by-hash\ad4849f71b1eb528a406e1b1c1d24b8e_cite-chicago-fullnotes-warning.pdf
+❌ outline-indent-auto-mixed-prefix-short (tests/suite\model\outline.typ:55)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-auto-mixed-prefix-short.pdf
+    old       | 38606e3e38a19faa5c78d85e52996b04
+    new       | d80da411ebd741c8ce63b2eb7c41aa5f
+    missing old live output tests/store\by-hash\38606e3e38a19faa5c78d85e52996b04_outline-indent-auto-mixed-prefix-short.pdf
+❌ outline-entry-inner (tests/suite\model\outline.typ:176)
+  mismatched output
+    live      | tests/store/pdf/outline-entry-inner.pdf
+    old       | c5456f469588344040db9f403736d686
+    new       | 8b7bc60ba63fbba337b2e233d86c54fc
+    missing old live output tests/store\by-hash\c5456f469588344040db9f403736d686_outline-entry-inner.pdf
+❌ outline-spacing (tests/suite\model\outline.typ:2)
+  mismatched output
+    live      | tests/store/pdf/outline-spacing.pdf
+    old       | 47d8457ba737fb6634bc705c7cdf94d4
+    new       | 4014231ead8926e3ed2e637bd7e1b158
+    missing old live output tests/store\by-hash\47d8457ba737fb6634bc705c7cdf94d4_outline-spacing.pdf
+❌ outline-indent-auto-no-prefix (tests/suite\model\outline.typ:65)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-auto-no-prefix.pdf
+    old       | 3bfd2a3563fd6366c4d2588cda27596b
+    new       | ebc872175299aab03a23d3caf733c323
+    missing old live output tests/store\by-hash\3bfd2a3563fd6366c4d2588cda27596b_outline-indent-auto-no-prefix.pdf
+❌ issue-5176-outline-cjk-title (tests/suite\model\outline.typ:323)
+  mismatched output
+    live      | tests/store/pdf/issue-5176-outline-cjk-title.pdf
+    old       | 793e5271051cd474630e9b627d0da83a
+    new       | ffc8abc0680b8bfa33ee16b1ca381bfb
+    missing old live output tests/store\by-hash\793e5271051cd474630e9b627d0da83a_issue-5176-outline-cjk-title.pdf
+❌ outline-indent-zero (tests/suite\model\outline.typ:77)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-zero.pdf
+    old       | 81184d73890fe14db42059a93c5b928f
+    new       | 47d979fd4114f51143f3a9bf5e9e8991
+    missing old live output tests/store\by-hash\81184d73890fe14db42059a93c5b928f_outline-indent-zero.pdf
+❌ issue-2048-outline-multiline (tests/suite\model\outline.typ:282)
+  mismatched output
+    live      | tests/store/pdf/issue-2048-outline-multiline.pdf
+    old       | bb6b4f0ce6fb6857e9b46869739f14f6
+    new       | 1667bee8e1cad8866321f582709ba613
+    missing old live output tests/store\by-hash\bb6b4f0ce6fb6857e9b46869739f14f6_issue-2048-outline-multiline.pdf
+❌ outline-indent-func (tests/suite\model\outline.typ:105)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-func.pdf
+    old       | 357d8618d7ed6d32ad0a056d3567b4ec
+    new       | 461194923f9d96a8862e47c78ae18fc7
+    missing old live output tests/store\by-hash\357d8618d7ed6d32ad0a056d3567b4ec_outline-indent-func.pdf
+❌ issue-4476-outline-rtl-title-ending-in-ltr-text (tests/suite\model\outline.typ:305)
+  mismatched output
+    live      | tests/store/pdf/issue-4476-outline-rtl-title-ending-in-ltr-text.pdf
+    old       | 7d5dd8442c37bbf014160cd3f6761f79
+    new       | 8dc0198b471438222907386273cfec74
+    missing old live output tests/store\by-hash\7d5dd8442c37bbf014160cd3f6761f79_issue-4476-outline-rtl-title-ending-in-ltr-text.pdf
+❌ outline-indent-fixed (tests/suite\model\outline.typ:91)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-fixed.pdf
+    old       | 3073fc5dc8e6346f107ecd0c54510b71
+    new       | 6be74b80d13186088544a3fea164f76f
+    missing old live output tests/store\by-hash\3073fc5dc8e6346f107ecd0c54510b71_outline-indent-fixed.pdf
+❌ issue-4859-outline-entry-show-set (tests/suite\model\outline.typ:313)
+  mismatched output
+    live      | tests/store/pdf/issue-4859-outline-entry-show-set.pdf
+    old       | e27c28d869a735988ccee00f977f50ae
+    new       | 37d789c0f4ae9dfba3093e6ddb1883ea
+    missing old live output tests/store\by-hash\e27c28d869a735988ccee00f977f50ae_issue-4859-outline-entry-show-set.pdf
+❌ outline-entry (tests/suite\model\outline.typ:125)
+  mismatched output
+    live      | tests/store/pdf/outline-entry.pdf
+    old       | 4a03c71263a488df90e2580b8cef599c
+    new       | 0d95346144853fe5c9776168131c90da
+    missing old live output tests/store\by-hash\4a03c71263a488df90e2580b8cef599c_outline-entry.pdf
+❌ outline-indent-auto-mixed-prefix (tests/suite\model\outline.typ:34)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-auto-mixed-prefix.pdf
+    old       | 8a8f2f6ce24c6565b2240b2d966949c1
+    new       | 1852cf99e8e7ed130f9117618117bf8e
+    missing old live output tests/store\by-hash\8a8f2f6ce24c6565b2240b2d966949c1_outline-indent-auto-mixed-prefix.pdf
+❌ outline-indent-auto (tests/suite\model\outline.typ:17)
+  mismatched output
+    live      | tests/store/pdf/outline-indent-auto.pdf
+    old       | 670b7aa43c9c0cd995f52d006ef6dd63
+    new       | 5273dcbd7b6e46ba0efea333d05facf0
+    missing old live output tests/store\by-hash\670b7aa43c9c0cd995f52d006ef6dd63_outline-indent-auto.pdf
+❌ outline-first-line-indent (tests/suite\model\outline.typ:227)
+  mismatched output
+    live      | tests/store/pdf/outline-first-line-indent.pdf
+    old       | 332ec75331cd08a939f42390f6f7a60f
+    new       | 3660901496fe6123579a19073554c0f8
+    missing old live output tests/store\by-hash\332ec75331cd08a939f42390f6f7a60f_outline-first-line-indent.pdf
+❌ outline-entry-complex (tests/suite\model\outline.typ:142)
+  mismatched output
+    live      | tests/store/pdf/outline-entry-complex.pdf
+    old       | 3ddfe59b8514b5961e9699fd9bbb734d
+    new       | c3a2c37efb7c8b35532c5a13cf83c900
+    missing old live output tests/store\by-hash\3ddfe59b8514b5961e9699fd9bbb734d_outline-entry-complex.pdf
+❌ background-artifact-2-0 (tests/suite\pdftags\disable.typ:74)
+  mismatched output
+    live      | tests/store/pdf/background-artifact-2-0.pdf
+    old       | 9247cba98bc56d8177e3568731eacafb
+    new       | 23659b48a3eea8623f1c2fd447ea8316
+    missing old live output tests/store\by-hash\9247cba98bc56d8177e3568731eacafb_background-artifact-2-0.pdf
+3773 passed, 19 failed, 0 skipped
+  pass '--update' to update error annotations or reference outputs
+  for a rich diff, view tests/store/report.html
+error: test failed, to rerun pass `-p typst-tests --test tests`
+
+Caused by:
+  process didn't exit successfully: `G:\dev\projects\typst-ua2-prototype\target\debug\deps\tests-e3a8d620f839d152.exe` (exit code: 15)

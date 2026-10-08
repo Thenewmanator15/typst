@@ -81,7 +81,8 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
         errors: std::mem::take(&mut gc.tags.tree.errors),
     };
 
-    let mut accum = Accumulator::root();
+    let pdf20 = gc.options.version() >= krilla::configure::PdfVersion::Pdf20;
+    let mut accum = Accumulator::root(pdf20);
     accum.reserve(root.nodes().len());
 
     for child in root.nodes() {
@@ -296,7 +297,16 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         GroupKind::TermsItemLabel(_) => Tag::Lbl.into(),
         GroupKind::TermsItemBody(_, _) => Tag::LBody.into(),
         GroupKind::BibEntry(_) => Tag::BibEntry.into(),
-        GroupKind::FigureWrapper(id) => rs.ctx.figures.get(*id).build_wrapper_tag()?,
+        GroupKind::FigureWrapper(id) => {
+            let tag = rs.ctx.figures.get(*id).build_wrapper_tag()?;
+            // Prototype: PDF 2.0 does not allow a caption directly in the document, and a
+            // div does not count as a parent. A section does.
+            if rs.options.version() >= krilla::configure::PdfVersion::Pdf20 {
+                Tag::Section.into()
+            } else {
+                tag
+            }
+        }
         GroupKind::Figure(id, _, _) => rs.ctx.figures.get(*id).build_tag()?,
         GroupKind::FigureCaption(_, _) => Tag::Caption.into(),
         GroupKind::Image(image, _, _) => {

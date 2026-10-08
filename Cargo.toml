@@ -78,8 +78,8 @@ indexmap = { version = "2", features = ["serde", "rayon"] }
 infer = { version = "0.19.0", default-features = false }
 itoa = "1"
 kamadak-exif = "0.6"
-krilla = { git = "https://github.com/LaurenzV/krilla", rev = "7772dbe", default-features = false, features = ["raster-images", "comemo", "rayon", "pdf"] }
-krilla-svg = { git = "https://github.com/LaurenzV/krilla", rev = "7772dbe" }
+krilla = { path = "../krilla-typst-pin/crates/krilla", default-features = false, features = ["raster-images", "comemo", "rayon", "pdf"] }
+krilla-svg = { path = "../krilla-typst-pin/crates/krilla-svg" }
 kurbo = "0.13"
 libfuzzer-sys = "0.4"
 libm = "0.2.11"
@@ -213,3 +213,8 @@ unnecessary_self_imports = "warn"
 unnecessary_semicolon = "warn"
 unnested_or_patterns = "warn"
 unseparated_literal_suffix = "warn"
+
+# Prototype only: the pdf-writer that writes the PDF 2.0 namespace correctly, for every
+# crate that depends on it, so that krilla and hayro-write agree on one copy.
+[patch.crates-io]
+pdf-writer = { git = "https://github.com/typst/pdf-writer", rev = "fdf090125f1e7209fa630c4ca1f5f29910c87c93" }

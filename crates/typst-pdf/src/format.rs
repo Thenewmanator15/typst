@@ -629,6 +629,7 @@ impl PdfStandards {
                 PdfStandard::A_4f => set_archival_validator(Archival::A4F)?,
                 PdfStandard::A_4e => set_archival_validator(Archival::A4E)?,
                 PdfStandard::UA_1 => set_accessibility_validator(Accessibility::UA1)?,
+                PdfStandard::UA_2 => set_accessibility_validator(Accessibility::UA2)?,
             }
         }
 
@@ -793,6 +794,10 @@ pub enum PdfStandard {
     #[string("ua-1")]
     #[serde(rename = "ua-1")]
     UA_1,
+    /// PDF/UA-2. Prototype: not complete.
+    #[string("ua-2")]
+    #[serde(rename = "ua-2")]
+    UA_2,
 }
 
 impl From<PdfVersion> for PdfStandard {
@@ -825,6 +830,7 @@ impl From<Validator> for PdfStandard {
             },
             Validator::Ua(accessibility) => match accessibility {
                 Accessibility::UA1 => PdfStandard::UA_1,
+                Accessibility::UA2 => PdfStandard::UA_2,
             },
         }
     }

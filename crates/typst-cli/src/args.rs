@@ -779,6 +779,9 @@ pub enum PdfStandard {
     /// PDF/UA-1.
     #[value(name = "ua-1")]
     UA_1,
+    /// PDF/UA-2. Prototype: not complete.
+    #[value(name = "ua-2")]
+    UA_2,
 }
 
 display_possible_values!(PdfStandard);

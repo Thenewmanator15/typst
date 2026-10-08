@@ -117,11 +117,12 @@ impl PdfOptions {
             }
         }
 
-        const ACCESSIBLE: [(PdfStandard, &str); 4] = [
+        const ACCESSIBLE: [(PdfStandard, &str); 5] = [
             (PdfStandard::A_1a, "PDF/A-1a"),
             (PdfStandard::A_2a, "PDF/A-2a"),
             (PdfStandard::A_3a, "PDF/A-3a"),
             (PdfStandard::UA_1, "PDF/UA-1"),
+            (PdfStandard::UA_2, "PDF/UA-2"),
         ];
         for (standard, name) in ACCESSIBLE {
             if format.standard.v.standards().any(|s| s == standard) {

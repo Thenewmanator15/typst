@@ -185,6 +185,7 @@ impl CompileConfig {
                 (args::PdfStandard::A_2a, "PDF/A-2a"),
                 (args::PdfStandard::A_3a, "PDF/A-3a"),
                 (args::PdfStandard::UA_1, "PDF/UA-1"),
+                (args::PdfStandard::UA_2, "PDF/UA-2"),
             ];
 
             for (standard, name) in ACCESSIBLE {
@@ -802,6 +803,7 @@ impl From<args::PdfStandard> for typst_pdf::PdfStandard {
             args::PdfStandard::A_4f => typst_pdf::PdfStandard::A_4f,
             args::PdfStandard::A_4e => typst_pdf::PdfStandard::A_4e,
             args::PdfStandard::UA_1 => typst_pdf::PdfStandard::UA_1,
+            args::PdfStandard::UA_2 => typst_pdf::PdfStandard::UA_2,
         }
     }
 }

@@ -762,6 +762,16 @@ fn convert_validation_error(
                 hint: "try converting the PDF to an SVG before embedding it";
             )
         }
+        ValidationError::NonStructureDestination(loc) => error!(
+            to_span(*loc),
+            "{prefix} a link or bookmark leads to a position rather than to an element";
+            hint: "link to an element, for example with a label";
+        ),
+        ValidationError::MissingStructureRef(loc) => error!(
+            to_span(*loc),
+            "{prefix} an outline entry or footnote is not connected to what it refers to";
+            hint: "please report this as a bug";
+        ),
         ValidationError::RequiresNewerPdfVersion(feature, loc) => {
             let span = to_span(*loc);
             let message = match feature {

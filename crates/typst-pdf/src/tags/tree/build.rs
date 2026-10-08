@@ -249,6 +249,10 @@ fn visit_frame(tree: &mut TreeBuilder, frame: &Frame) -> SourceResult<()> {
             FrameItem::Tag(typst_library::introspection::Tag::Start(elem, flags)) => {
                 if flags.tagged {
                     visit_start_tag(tree, elem);
+                } else {
+                    // Prototype: not tagged, but it may still be linked to.
+                    let enclosing = enclosing_tagged(tree);
+                    alias_untagged(tree, elem, enclosing);
                 }
             }
             FrameItem::Tag(typst_library::introspection::Tag::End(loc, _, flags)) => {
@@ -328,8 +332,33 @@ fn pop_logical_child(tree: &mut TreeBuilder, parent: FrameParent, stack_idx: usi
 }
 
 fn visit_start_tag(tree: &mut TreeBuilder, elem: &Content) {
+    let enclosing = enclosing_tagged(tree);
+
     let group_id = progress_tree_start(tree, elem);
     tree.progressions.push(group_id);
+
+    alias_untagged(tree, elem, enclosing);
+}
+
+/// Prototype: the location of the nearest enclosing element that has a tag.
+fn enclosing_tagged(tree: &TreeBuilder) -> Option<Location> {
+    (tree.stack.iter().rev()).find_map(|entry| {
+        let loc = entry.loc?;
+        (tree.groups.refs.tag_locs.get(&loc) == Some(&entry.id)).then_some(loc)
+    })
+}
+
+/// Prototype: located content that has no tag of its own stands for the element that
+/// encloses it, so that a link to it can still lead to a tag.
+fn alias_untagged(tree: &mut TreeBuilder, elem: &Content, enclosing: Option<Location>) {
+    if let Some(loc) = elem.location()
+        && let Some(enclosing) = enclosing
+    {
+        let refs = &mut tree.groups.refs;
+        if !refs.tag_locs.contains_key(&loc) && !refs.alias.contains_key(&loc) {
+            refs.alias.insert(loc, enclosing);
+        }
+    }
 }
 
 fn visit_end_tag(tree: &mut TreeBuilder, loc: Location) -> SourceResult<()> {
@@ -390,7 +419,10 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
         if let Some(footnote) = footnote
             && let Some(link_loc) = elem.location()
         {
-            tree.groups.refs.alias.entry(footnote).or_insert(link_loc);
+            let refs = &mut tree.groups.refs;
+            if refs.footnotes.insert(footnote) {
+                refs.alias.insert(footnote, link_loc);
+            }
         }
         push_group(tree, elem, GroupKind::Link(link.clone(), None))
     } else if let Some(_) = elem.to_packed::<TitleElem>() {
@@ -609,6 +641,9 @@ fn push_weak(tree: &mut TreeBuilder, elem: &Content, kind: GroupKind) -> GroupId
     let span = elem.span();
     let parent = tree.current();
     let id = tree.groups.new_weak(parent, span, kind);
+    // Prototype: a paragraph is left out when it turns out empty, in which case the id
+    // made for it here leads nowhere. That case is not handled.
+    remember_location(tree, id, loc);
     push_stack_entry(tree, Some(loc), id)
 }
 

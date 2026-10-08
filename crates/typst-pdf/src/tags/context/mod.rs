@@ -210,6 +210,55 @@ impl BBoxCtx {
     }
 }
 
+/// Prototype: what has to be known about the tags before the pages are converted.
+pub fn prepare(tree: &mut Tree) {
+    figure::alias_untagged_figures(tree);
+    alias_flattened(tree);
+}
+
+/// Prototype: the tags inside an element with an alternative description are left out
+/// when the tree is resolved (only links are kept). Let the location of such an element
+/// stand for the outermost element with the description.
+fn alias_flattened(tree: &mut Tree) {
+    let mut flattened = Vec::new();
+    for (&loc, &id) in tree.groups.refs.tag_locs.iter() {
+        let group = tree.groups.get(id);
+        if group.kind.is_link() {
+            continue;
+        }
+        let mut outer = None;
+        let mut parent = group.parent;
+        // The parents form a chain up to the root. The limit only guards against a loop.
+        for _ in 0..10_000 {
+            if parent == crate::tags::GroupId::INVALID {
+                break;
+            }
+            let ancestor = tree.groups.get(parent);
+            if tree.ctx.alt(&ancestor.kind).is_some() {
+                outer = Some(ancestor.loc);
+            }
+            if parent == crate::tags::GroupId::ROOT || ancestor.parent == parent {
+                break;
+            }
+            parent = ancestor.parent;
+        }
+        if let Some(outer) = outer {
+            flattened.push((loc, outer));
+        }
+    }
+    let refs = &mut tree.groups.refs;
+    for (loc, _) in &flattened {
+        refs.tag_locs.remove(loc);
+    }
+    for (loc, outer) in flattened {
+        if let Some(outer) = outer
+            && refs.tag_locs.contains_key(&outer)
+        {
+            refs.alias.insert(loc, outer);
+        }
+    }
+}
+
 pub fn finish(tree: &mut Tree) {
     for figure_id in tree.ctx.figures.ids() {
         build_figure(tree, figure_id);

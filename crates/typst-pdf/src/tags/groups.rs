@@ -52,13 +52,22 @@ pub struct RefInfo {
     /// has no tag where it is cited, only the link with its number has, so the
     /// footnote's location stands for that link.
     pub alias: FxHashMap<Location, Location>,
+    /// The footnotes whose alias is the link with their number.
+    pub footnotes: rustc_hash::FxHashSet<Location>,
 }
 
 impl RefInfo {
     /// The id of the tag that the location leads to, if there is one.
     pub fn target(&self, loc: Location) -> Option<krilla::tagging::TagId> {
-        let loc = self.alias.get(&loc).copied().unwrap_or(loc);
-        self.tag_locs.contains_key(&loc).then(|| tag_id(loc))
+        // An alias can lead to another alias, when what it stood for lost its tag.
+        let mut loc = loc;
+        for _ in 0..8 {
+            if self.tag_locs.contains_key(&loc) {
+                return Some(tag_id(loc));
+            }
+            loc = *self.alias.get(&loc)?;
+        }
+        None
     }
 }
 

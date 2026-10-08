@@ -69,6 +69,53 @@ impl FigureCtx {
     }
 }
 
+/// Prototype: a figure without an alternative description that holds a single element
+/// gets no tag of its own (see [`build_figure`]). Destinations are created before that
+/// is decided, so decide it here already, and let the figure's location stand for the
+/// element inside it.
+///
+/// The groups have no child lists yet at this point, only parent pointers, so this
+/// cannot see marked content that sits directly in a figure next to its one element.
+pub fn alias_untagged_figures(tree: &mut Tree) {
+    let mut children: rustc_hash::FxHashMap<GroupId, Vec<GroupId>> = Default::default();
+    for id in tree.groups.list.ids() {
+        let group = tree.groups.get(id);
+        if id != GroupId::ROOT && !matches!(group.kind, GroupKind::FigureCaption(..)) {
+            children.entry(group.parent).or_default().push(id);
+        }
+    }
+
+    let mut untagged = Vec::new();
+    for figure in tree.ctx.figures.iter() {
+        if figure.elem.alt.opt_ref().is_some() {
+            continue;
+        }
+        let Some(loc) = tree.groups.get(figure.group_id).loc else { continue };
+        // Follow single children down to the first one with a meaning of its own.
+        let mut current = figure.group_id;
+        let mut child = None;
+        while let Some([only]) = children.get(&current).map(Vec::as_slice) {
+            current = *only;
+            if tree.groups.get(current).kind.is_semantic() {
+                child = Some(current);
+                break;
+            }
+        }
+        if let Some(child) = child {
+            untagged.push((loc, tree.groups.get(child).loc));
+        }
+    }
+    let refs = &mut tree.groups.refs;
+    for (loc, child) in untagged {
+        refs.tag_locs.remove(&loc);
+        if let Some(child) = child
+            && refs.tag_locs.contains_key(&child)
+        {
+            refs.alias.insert(loc, child);
+        }
+    }
+}
+
 pub fn build_figure(tree: &mut Tree, figure_id: FigureId) {
     let figure_ctx = tree.ctx.figures.get_mut(figure_id);
     let group = tree.groups.get(figure_ctx.group_id);

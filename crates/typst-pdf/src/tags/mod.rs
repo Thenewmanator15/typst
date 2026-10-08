@@ -31,7 +31,9 @@ pub fn init(
     options: &PdfOptions<Complete>,
 ) -> SourceResult<Tags> {
     let tree = if options.tagged() {
-        tree::build(document, options)?
+        let mut tree = tree::build(document, options)?;
+        context::prepare(&mut tree);
+        tree
     } else {
         Tree::empty(document, options)
     };

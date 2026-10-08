@@ -23,13 +23,21 @@ Equations get presentation MathML, which PDF/UA-2 requires (8.2.5.29.1). It is m
 converter that HTML export already has (`typst-html/src/mathml.rs`), written out as XML and
 attached to the `Formula` tag as an associated file. With it, an equation no longer needs
 `alt` for PDF/UA-2. Because making MathML costs about as much as laying an equation out, it
-is only made when `ua-2` is given with `--pdf-standard` on the command line: the CLI then
-sets an internal style, `EquationElem::mathml_wanted`. A `set pdf(standard: "ua-2")` rule in
-the document does not switch it on, and export then stops with an error. Together with
+is only made when `ua-2` is asked for: with `--pdf-standard` on the command line, where the
+CLI sets an internal style, `EquationElem::mathml_wanted`, or with a
+`set pdf(standard: "ua-2")` rule at the start of the document, which a format can now
+answer for (`Format::with_mathml`). Together with
 PDF/A-4 the standard has to be `a-4f`, because PDF/A-4 only allows attached files that are
 PDF/A themselves.
 
+In PDF 2.0, a link to a place in the same document is tagged `Reference` rather than `Link`
+(8.2.5.20), a list of terms has the `ListNumbering` `Description` (8.2.5.25), and a figure
+and its caption are wrapped in an `Aside` (8.2.5.27). ISO 32005 does not allow an `Aside` in
+a table cell, a block quote or another `Aside`, so there the wrapper is a `Sect`, which is
+allowed but a poorer fit. An outline filler other than the default `repeat` is made an
+artifact (8.2.5.8).
+
 Known shortcuts: links split over two lines and footnotes that run on to another page are
 handled but not covered by a test document; a paragraph that turns out empty would leave a
-reference to nothing; term lists still fail PDF/UA-2 (8.2.5.25). `tests/src/run.rs` has a
+reference to nothing. `tests/src/run.rs` has a
 local change so that the test suite runs on Windows without Developer Mode.

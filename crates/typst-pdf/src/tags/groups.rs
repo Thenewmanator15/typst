@@ -61,6 +61,9 @@ pub struct RefInfo {
     /// The locations whose tag something refers to. Only these get an id. Filled in
     /// just before the tags are resolved.
     pub used: rustc_hash::FxHashSet<Location>,
+    /// The locations of the links that lead to a place in this document. PDF/UA-2
+    /// asks for these to be tagged `Reference` rather than `Link` (8.2.5.20).
+    pub internal_links: rustc_hash::FxHashSet<Location>,
 }
 
 impl RefInfo {
@@ -208,6 +211,7 @@ impl Groups {
                 TagKind::Article(_) => Never,
                 TagKind::Section(_) => Never,
                 TagKind::Div(_) => Never,
+                TagKind::Aside(_) => Never,
                 TagKind::BlockQuote(_) => Never,
                 TagKind::Caption(_) => Never,
                 TagKind::TOC(_) => Never,

@@ -111,6 +111,7 @@ pub struct Format {
     options: fn() -> FormatOptions,
     feature: Option<Feature>,
     rules: Option<fn(&mut NativeRuleMap)>,
+    mathml: Option<fn(StyleChain) -> bool>,
 }
 
 impl Format {
@@ -121,6 +122,7 @@ impl Format {
             options: || E::Options::default().into(),
             feature: None,
             rules: None,
+            mathml: None,
         }
     }
 
@@ -134,6 +136,18 @@ impl Format {
     pub const fn with_rules(mut self, register: fn(&mut NativeRuleMap)) -> Self {
         self.rules = Some(register);
         self
+    }
+
+    /// Add a check for whether, with the given styles, the format needs
+    /// MathML for equations. The compiler only makes it then.
+    pub const fn with_mathml(mut self, wants: fn(StyleChain) -> bool) -> Self {
+        self.mathml = Some(wants);
+        self
+    }
+
+    /// Whether the format needs MathML for equations with the given styles.
+    pub fn wants_mathml(&self, styles: StyleChain) -> bool {
+        self.mathml.is_some_and(|wants| wants(styles))
     }
 
     /// Get the default format options of this format.

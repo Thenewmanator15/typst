@@ -119,6 +119,14 @@ pub(crate) fn handle_link(
     let link_span = link.span();
     let link_loc = link.location();
 
+    // Prototype: a link with a destination, rather than an action with a URI, leads
+    // to a place in this document.
+    if let Some(link_loc) = link_loc
+        && matches!(target, Target::Destination(_))
+    {
+        gc.tags.tree.groups.refs.internal_links.insert(link_loc);
+    }
+
     // Prototype: remember what this link leads to, for the refs of the tags.
     if let Some(dest_loc) = dest_loc
         && let Some(link_loc) = link_loc

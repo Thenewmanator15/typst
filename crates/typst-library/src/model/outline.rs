@@ -21,7 +21,7 @@ use crate::layout::{
     RepeatElem, Sides,
 };
 use crate::model::PdfMarkerTag;
-use crate::model::{HeadingElem, NumberingPattern, ParElem, Refable};
+use crate::model::{ArtifactElem, HeadingElem, NumberingPattern, ParElem, Refable};
 use crate::text::{LocalName, SpaceElem, TextElem};
 
 /// A table of contents, figures, or other elements.
@@ -727,6 +727,13 @@ impl OutlineEntry {
 
         // Add the filler between the section name and page number.
         if let Some(filler) = self.fill.get_cloned(styles) {
+            // PDF/UA-2 wants leaders to be artifacts (8.2.5.8). The default,
+            // a `repeat`, already is one. Anything else is made one here.
+            let filler = if filler.is::<RepeatElem>() {
+                filler
+            } else {
+                ArtifactElem::new(filler).pack().spanned(span)
+            };
             seq.push(SpaceElem::shared().clone());
             seq.push(
                 BoxElem::new()

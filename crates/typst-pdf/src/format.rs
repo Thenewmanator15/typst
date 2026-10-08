@@ -26,7 +26,9 @@ use typst_syntax::Spanned;
 use typst_utils::NonZeroExt;
 
 /// The format element for registering the PDF format.
-pub const FORMAT: Format = Format::new::<PdfFormat>().with_rules(register);
+pub const FORMAT: Format = Format::new::<PdfFormat>()
+    .with_rules(register)
+    .with_mathml(|styles| styles.get_ref(PdfFormat::standard).needs_mathml());
 
 /// Registers show rules for PDF specific elements.
 pub fn register(rules: &mut NativeRuleMap) {

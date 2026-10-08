@@ -44,6 +44,9 @@ struct Resolver<'a> {
     annotations: &'a mut Annotations,
     last_heading_level: Option<NonZeroU16>,
     flatten: bool,
+    /// Prototype: whether the nearest enclosing element is a table cell, a block quote
+    /// or an aside, where ISO 32005 does not allow an `Aside`.
+    no_aside: bool,
     errors: EcoVec<SourceDiagnostic>,
 }
 
@@ -118,6 +121,7 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
         annotations: &mut gc.tags.annotations,
         last_heading_level: None,
         flatten: false,
+        no_aside: false,
         errors: std::mem::take(&mut gc.tags.tree.errors),
     };
 
@@ -189,6 +193,15 @@ fn resolve_group_node(
     // won't be ingested by AT anyway, but would still have to comply with all
     // rules, which can be annoying.
     let flatten = tag.as_ref().is_some_and(|t| t.alt_text().is_some());
+    // A `Div` does not count as a parent in PDF 2.0, so it is looked through.
+    let outer_no_aside = rs.no_aside;
+    rs.no_aside = match &tag {
+        Some(
+            TagKind::TD(_) | TagKind::TH(_) | TagKind::BlockQuote(_) | TagKind::Aside(_),
+        ) => true,
+        Some(TagKind::Div(_) | TagKind::NonStruct(_)) | None => rs.no_aside,
+        Some(_) => false,
+    };
     rs.with_flatten(flatten, |rs| {
         let lang = lang.as_mut().unwrap_or(parent_lang);
         let bbox = if bbox.is_some() { &mut bbox } else { &mut *parent_bbox };
@@ -206,6 +219,8 @@ fn resolve_group_node(
             }
         }
     });
+
+    rs.no_aside = outer_no_aside;
 
     // Try to propagate the group's language to the parent tag.
     let lang = util::propagate_lang(parent_lang, lang.flatten());
@@ -318,6 +333,14 @@ fn resolve_artifact_node(
     }
 }
 
+/// Prototype: whether the group is a link that is tagged `Reference`: in PDF 2.0, one
+/// that leads to a place in this document.
+fn is_internal_link(rs: &Resolver, group: &Group) -> bool {
+    group.kind.is_link()
+        && rs.options.version() >= krilla::configure::PdfVersion::Pdf20
+        && group.loc.is_some_and(|loc| rs.refs.internal_links.contains(&loc))
+}
+
 fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagKind> {
     let tag = match &group.kind {
         GroupKind::Root(_) => unreachable!(),
@@ -338,10 +361,16 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         GroupKind::BibEntry(_) => Tag::BibEntry.into(),
         GroupKind::FigureWrapper(id) => {
             let tag = rs.ctx.figures.get(*id).build_wrapper_tag()?;
-            // Prototype: PDF 2.0 does not allow a caption directly in the document, and a
-            // div does not count as a parent. A section does.
+            // Prototype: PDF/UA-2 wants a caption to be a child of the element that
+            // encloses what it captions (8.2.5.27). A div does not count as that in
+            // PDF 2.0. An aside does: content that is distinct from the rest of its
+            // parent, which is what a figure with its caption is.
+            //
+            // ISO 32005 does not allow an aside in a table cell, a block quote or
+            // another aside (a figure inside a figure). A section is allowed there, so that is used instead, though it is a poorer
+            // fit.
             if rs.options.version() >= krilla::configure::PdfVersion::Pdf20 {
-                Tag::Section.into()
+                if rs.no_aside { Tag::Section.into() } else { Tag::Aside.into() }
             } else {
                 tag
             }
@@ -366,7 +395,7 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
                     equation.span(),
                     "PDF/UA-2 error: this equation could not be converted to MathML";
                     hint: "PDF/UA-2 requires MathML for mathematical expressions";
-                    hint: "MathML is only made when `ua-2` is given with `--pdf-standard` on the command line";
+                    hint: "MathML is only made when `ua-2` is given with `--pdf-standard` on the command line or in a `set pdf` rule at the start of the document";
                 ));
             }
             // The MathML is an attached file, and PDF/A-4 only allows attached
@@ -384,7 +413,13 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
             }
             Tag::Formula(alt).with_placement(placement).with_mathml(mathml).into()
         }
-        GroupKind::Link(_, _) => Tag::Link.into(),
+        GroupKind::Link(_, _) => {
+            if is_internal_link(rs, group) {
+                Tag::Reference.into()
+            } else {
+                Tag::Link.into()
+            }
+        }
         GroupKind::CodeBlock(_) => {
             Tag::Code.with_placement(Some(kt::Placement::Block)).into()
         }
@@ -392,7 +427,17 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         GroupKind::Par(_) => Tag::P.into(),
         GroupKind::TextAttr(_) => return None,
         GroupKind::Transparent => return None,
-        GroupKind::Standard(tag, _) => rs.tags.take(*tag),
+        GroupKind::Standard(tag, _) => {
+            // An outline entry wraps its link in a `Reference`. When the link is one
+            // itself, the wrapper would only repeat it.
+            if matches!(rs.tags.get(*tag), TagKind::Reference(_))
+                && let [TagNode::Group(child)] = group.nodes()
+                && is_internal_link(rs, rs.groups.get(*child))
+            {
+                return None;
+            }
+            rs.tags.take(*tag)
+        }
     };
 
     let mut tag = tag.with_location(Some(group.span.into_raw()));
@@ -501,6 +546,7 @@ fn element_kind(tag: &TagKind) -> ElementKind {
         | TagKind::Article(_)
         | TagKind::Section(_)
         | TagKind::Div(_)
+        | TagKind::Aside(_)
         | TagKind::BlockQuote(_)
         | TagKind::Caption(_)
         | TagKind::TOC(_)
@@ -655,6 +701,7 @@ fn tag_name(tag: &TagKind) -> &'static str {
         TagKind::Article(_) => "article (Art)",
         TagKind::Section(_) => "section (Section)",
         TagKind::Div(_) => "division (Div)",
+        TagKind::Aside(_) => "aside (Aside)",
         TagKind::BlockQuote(_) => "block quote (BlockQuote)",
         TagKind::Caption(_) => "caption (Caption)",
         TagKind::TOC(_) => "outline (TOC)",

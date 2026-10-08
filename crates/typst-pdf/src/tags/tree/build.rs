@@ -440,7 +440,8 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
         let id = tree.ctx.lists.push(ListCtx::new());
         push_group(tree, elem, GroupKind::List(id, numbering, None))
     } else if let Some(_) = elem.to_packed::<TermsElem>() {
-        let numbering = ListNumbering::None;
+        // Prototype: krilla writes this as `None` before PDF 2.0.
+        let numbering = ListNumbering::Description;
         let id = tree.ctx.lists.push(ListCtx::new());
         push_group(tree, elem, GroupKind::List(id, numbering, None))
     } else if let Some(figure) = elem.to_packed::<FigureElem>() {

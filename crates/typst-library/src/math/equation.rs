@@ -205,9 +205,15 @@ impl Synthesize for Packed<EquationElem> {
 
         // Only paged export uses this, and a conversion that fails just means
         // there is no MathML to attach.
-        let mathml = if styles.get(EquationElem::mathml_wanted)
-            && styles.get(TargetElem::target) == Target::Paged
-        {
+        // Asked for by whoever started the compilation, or by a set rule of a
+        // format, such as `set pdf(standard: "ua-2")`.
+        let wanted = styles.get(EquationElem::mathml_wanted)
+            || engine
+                .library
+                .formats
+                .iter()
+                .any(|format| format.wants_mathml(styles));
+        let mathml = if wanted && styles.get(TargetElem::target) == Target::Paged {
             (engine.library.routines.equation_mathml)(self, engine, styles)
                 .ok()
                 .flatten()

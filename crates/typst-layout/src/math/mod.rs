@@ -26,7 +26,7 @@ use typst_library::math::ir::{
     resolve_equation,
 };
 use typst_library::math::{EquationElem, families};
-use typst_library::model::ParElem;
+use typst_library::model::{ParElem, PdfMarkerTag};
 use typst_library::routines::Arenas;
 use typst_library::text::{
     Font, FontFlags, FontInstance, TextEdgeBounds, TextElem, variant,
@@ -210,9 +210,11 @@ pub fn layout_equation_block(
     };
 
     let pod = Region::new(regions.base(), Axes::splat(false));
-    let counter = Counter::of(EquationElem::ELEM)
-        .display_at(engine, elem.location().unwrap(), styles, numbering, span)?
-        .spanned(span);
+    let counter = PdfMarkerTag::EquationNumber(
+        Counter::of(EquationElem::ELEM)
+            .display_at(engine, elem.location().unwrap(), styles, numbering, span)?
+            .spanned(span),
+    );
     let mut locator = locator.split();
     let number = crate::layout_frame(engine, &counter, locator.next(&()), styles, pod)?;
 

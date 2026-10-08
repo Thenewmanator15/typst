@@ -507,6 +507,7 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         let prev_level = rs.last_heading_level.map_or(0, |l| l.get());
         let next_level = tag.level();
         if let Some(accessibility) = rs.options.validators().accessibility()
+            && accessibility != krilla::configure::Accessibility::UA2
             && next_level.get().saturating_sub(prev_level) > 1
         {
             let span = to_span(tag.as_any().location);

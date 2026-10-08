@@ -37,6 +37,18 @@ a table cell, a block quote or another `Aside`, so there the wrapper is a `Sect`
 allowed but a poorer fit. An outline filler other than the default `repeat` is made an
 artifact (8.2.5.8).
 
+After reading the whole of clause 8 of ISO 14289-2, also in PDF 2.0: the number of a
+numbered equation is an `Lbl` (8.2.5.16), a footnote has the `NoteType` `Footnote`
+(8.2.5.14.2), the `ListNumbering` of a list follows its marker or numbering pattern
+(8.2.5.25), and the bibliography is a `Sect` with the ARIA role `doc-bibliography`
+(8.2.5.31), for which `BibliographyElem` is now `Tagged`. With `ua-2`, heading levels
+may skip, since PDF/UA-2 does not ask for them to follow on (8.2.5.12).
+
+Not done: line numbers are plain artifacts, not `Artifact` structure elements (8.3.2);
+headings are not grouped into `Sect` elements (8.2.5.5, a recommendation); and when an
+equation is given `alt`, its number is not labelled, because tags inside an element with
+an alternative description are left out.
+
 Known shortcuts: links split over two lines and footnotes that run on to another page are
 handled but not covered by a test document; a paragraph that turns out empty would leave a
 reference to nothing. `tests/src/run.rs` has a

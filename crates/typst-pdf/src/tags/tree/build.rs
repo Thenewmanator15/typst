@@ -33,10 +33,10 @@ use typst_library::layout::{
 };
 use typst_library::math::EquationElem;
 use typst_library::model::{
-    ArtifactElem, Document, EmphElem, EnumElem, FigureCaption, FigureElem, FootnoteElem,
-    FootnoteEntry, HeadingElem, LinkMarker, ListElem, Outlinable, OutlineEntry, ParElem,
-    PdfMarkerTag, PdfMarkerTagKind, QuoteElem, StrongElem, TableCell, TableElem,
-    TermsElem, TitleElem,
+    ArtifactElem, BibliographyElem, Document, EmphElem, EnumElem, FigureCaption,
+    FigureElem, FootnoteElem, FootnoteEntry, HeadingElem, LinkMarker, ListElem,
+    ListMarker, Numbering, Outlinable, OutlineEntry, ParElem, PdfMarkerTag,
+    PdfMarkerTagKind, QuoteElem, StrongElem, TableCell, TableElem, TermsElem, TitleElem,
 };
 use typst_library::text::{
     HighlightElem, OverlineElem, RawElem, RawLine, StrikeElem, SubElem, SuperElem,
@@ -407,6 +407,13 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
                 push_group(tree, elem, GroupKind::TermsItemBody(None, None))
             }
             PdfMarkerTagKind::Label => push_tag(tree, elem, Tag::Lbl),
+            PdfMarkerTagKind::EquationNumber => {
+                if tree.pdf20() {
+                    push_tag(tree, elem, Tag::Lbl)
+                } else {
+                    no_progress(tree)
+                }
+            }
         }
     } else if let Some(link) = elem.to_packed::<LinkMarker>() {
         // Prototype: the link with a footnote's number stands for the footnote.
@@ -425,18 +432,44 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
             }
         }
         push_group(tree, elem, GroupKind::Link(link.clone(), None))
+    } else if let Some(_) = elem.to_packed::<BibliographyElem>() {
+        // Prototype: PDF/UA-2 wants the section that holds a bibliography to say so
+        // with an ARIA role (8.2.5.31). Typst has no sections otherwise.
+        if tree.pdf20() {
+            let role = Some("doc-bibliography".to_string());
+            push_tag(tree, elem, Tag::Section.with_aria_role(role))
+        } else {
+            no_progress(tree)
+        }
     } else if let Some(_) = elem.to_packed::<TitleElem>() {
         push_tag(tree, elem, Tag::Title)
     } else if let Some(entry) = elem.to_packed::<OutlineEntry>() {
         push_group(tree, elem, GroupKind::OutlineEntry(entry.clone(), None))
-    } else if let Some(_) = elem.to_packed::<ListElem>() {
-        // TODO: infer numbering from `list.marker`
-        let numbering = ListNumbering::Circle;
+    } else if let Some(list) = elem.to_packed::<ListElem>() {
+        // Prototype: PDF/UA-2 wants the value closest to the labels (8.2.5.25).
+        // Older versions keep the value Typst has always written.
+        let numbering = if tree.pdf20() {
+            let depth = tree.list_depth(is_bullet_numbering);
+            bullet_numbering(
+                list.marker.get_ref(typst_library::foundations::StyleChain::default()),
+                depth,
+            )
+        } else {
+            ListNumbering::Circle
+        };
         let id = tree.ctx.lists.push(ListCtx::new());
         push_group(tree, elem, GroupKind::List(id, numbering, None))
-    } else if let Some(_) = elem.to_packed::<EnumElem>() {
-        // TODO: infer numbering from `enum.numbering`
-        let numbering = ListNumbering::Decimal;
+    } else if let Some(list) = elem.to_packed::<EnumElem>() {
+        let numbering = if tree.pdf20() {
+            let depth = tree.list_depth(|numbering| !is_bullet_numbering(numbering));
+            enum_numbering(
+                list.numbering
+                    .get_ref(typst_library::foundations::StyleChain::default()),
+                depth,
+            )
+        } else {
+            ListNumbering::Decimal
+        };
         let id = tree.ctx.lists.push(ListCtx::new());
         push_group(tree, elem, GroupKind::List(id, numbering, None))
     } else if let Some(_) = elem.to_packed::<TermsElem>() {
@@ -531,7 +564,8 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
     } else if let Some(_) = elem.to_packed::<FootnoteElem>() {
         push_located(tree, elem, GroupKind::LogicalParent(elem.clone()))
     } else if let Some(_) = elem.to_packed::<FootnoteEntry>() {
-        let id = push_tag(tree, elem, Tag::Note);
+        let note = Tag::Note.with_note_type(Some(krilla::tagging::NoteType::Footnote));
+        let id = push_tag(tree, elem, note);
         // Prototype: keep every part of a footnote that runs on to another page.
         if let Some(loc) = elem.location() {
             tree.groups.refs.note_parts.entry(loc).or_default().push(id);
@@ -585,6 +619,53 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
         push_text_attr(tree, elem, TextAttr::Strike(strike.clone()))
     } else {
         no_progress(tree)
+    }
+}
+
+/// Whether a list with this numbering is a bullet list rather than a numbered one.
+fn is_bullet_numbering(numbering: ListNumbering) -> bool {
+    matches!(
+        numbering,
+        ListNumbering::Disc
+            | ListNumbering::Circle
+            | ListNumbering::Square
+            | ListNumbering::Unordered
+    )
+}
+
+/// The `ListNumbering` closest to the marker of a bullet list at a depth.
+fn bullet_numbering(marker: &ListMarker, depth: usize) -> ListNumbering {
+    let ListMarker::Content(markers) = marker else {
+        return ListNumbering::Unordered;
+    };
+    let Some(marker) = markers.get(depth % markers.len().max(1)) else {
+        return ListNumbering::Unordered;
+    };
+    match marker.plain_text().trim() {
+        "\u{2022}" | "\u{25CF}" => ListNumbering::Disc,
+        "\u{25E6}" | "\u{25CB}" => ListNumbering::Circle,
+        "\u{25AA}" | "\u{25A0}" => ListNumbering::Square,
+        _ => ListNumbering::Unordered,
+    }
+}
+
+/// The `ListNumbering` closest to the numbering of a numbered list at a depth.
+fn enum_numbering(numbering: &Numbering, depth: usize) -> ListNumbering {
+    use codex::numeral_systems::NamedNumeralSystem as System;
+    let Numbering::Pattern(pattern) = numbering else {
+        return ListNumbering::Ordered;
+    };
+    // As when the pattern is applied: a level beyond the last piece uses the last.
+    let piece = (pattern.pieces.iter())
+        .chain(pattern.pieces.last().into_iter().cycle())
+        .nth(depth);
+    match piece.map(|(_, system)| *system) {
+        Some(System::Arabic) => ListNumbering::Decimal,
+        Some(System::LowerRoman) => ListNumbering::LowerRoman,
+        Some(System::UpperRoman) => ListNumbering::UpperRoman,
+        Some(System::LowerLatin) => ListNumbering::LowerAlpha,
+        Some(System::UpperLatin) => ListNumbering::UpperAlpha,
+        _ => ListNumbering::Ordered,
     }
 }
 
@@ -886,4 +967,22 @@ fn split_outer_group(
     debug_assert_eq!(tree.parent(), prev);
 
     tree.parent()
+}
+
+// Prototype: kept at the end of the file, because a test of Typst's names a line
+// number further up.
+impl TreeBuilder<'_> {
+    fn pdf20(&self) -> bool {
+        self.options.version() >= krilla::configure::PdfVersion::Pdf20
+    }
+
+    /// How many lists whose numbering matches enclose the current position.
+    fn list_depth(&self, matches: impl Fn(ListNumbering) -> bool) -> usize {
+        (self.stack.iter())
+            .filter(|entry| match &self.groups.get(entry.id).kind {
+                GroupKind::List(_, numbering, _) => matches(*numbering),
+                _ => false,
+            })
+            .count()
+    }
 }

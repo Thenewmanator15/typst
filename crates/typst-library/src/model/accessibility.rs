@@ -146,4 +146,6 @@ pdf_marker_tag! {
     TermsItemBody,
     /// A generic `Lbl`.
     Label,
+    /// The number of a numbered equation, an `Lbl` in PDF 2.0.
+    EquationNumber,
 }

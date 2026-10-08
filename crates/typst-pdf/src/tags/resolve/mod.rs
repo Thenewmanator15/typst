@@ -395,11 +395,14 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
             .and_then(|target| refs.target(target))
             .into_iter()
             .collect(),
-        // A link refers to the element it leads to. Of a split link, only the group
-        // that carries the id does, so that what it refers to can refer back.
+        // The link with a footnote's number refers to the footnote. Other links do not
+        // need to refer to what they lead to, and it would make the file larger. Of a
+        // split link, only the group that carries the id refers to the footnote, so
+        // that the footnote can refer back.
         GroupKind::Link(..) => (group.loc)
             .filter(|loc| refs.tag_locs.get(loc) == Some(&id))
             .and_then(|loc| refs.link_dests.get(&loc).copied())
+            .filter(|target| refs.note_parts.contains_key(target))
             .map(|target| {
                 // Every part of a footnote that runs on to another page.
                 let later = (refs.note_parts.get(&target).map_or(0, Vec::len)).max(1);

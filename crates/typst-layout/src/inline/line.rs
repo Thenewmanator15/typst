@@ -668,7 +668,8 @@ fn add_par_line_marker(
     // line's general baseline. However, the line number will still need to
     // manually adjust its own 'y' position based on its own baseline.
     let pos = Point::with_y(top);
-    let flags = TagFlags { introspectable: false, tagged: false };
+    // Tagged, so that PDF export can put the number of the line at the line.
+    let flags = TagFlags { introspectable: false, tagged: true };
     output.push(pos, FrameItem::Tag(Tag::Start(marker.pack(), flags)));
     output.push(pos, FrameItem::Tag(Tag::End(loc, key, flags)));
 }

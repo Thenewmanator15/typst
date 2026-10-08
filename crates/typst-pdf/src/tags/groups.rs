@@ -7,6 +7,7 @@ use rustc_hash::FxHashMap;
 use typst_library::format::Complete;
 use typst_library::foundations::{Content, Packed};
 use typst_library::introspection::Location;
+use typst_library::layout::Abs;
 use typst_library::layout::{GridCell, Inherit, Size};
 use typst_library::math::EquationElem;
 use typst_library::model::{LinkMarker, OutlineEntry, TableCell};
@@ -64,6 +65,51 @@ pub struct RefInfo {
     /// The locations of the links that lead to a place in this document. PDF/UA-2
     /// asks for these to be tagged `Reference` rather than `Link` (8.2.5.20).
     pub internal_links: rustc_hash::FxHashSet<Location>,
+    /// Where the markers of numbered lines are on the page being visited.
+    pub lines: Lines,
+}
+
+/// Prototype: where the markers of lines are on the current page, see
+/// `push_line_number` in the tree builder.
+#[derive(Debug, Default)]
+pub struct Lines {
+    /// How far down the page the frame being visited starts.
+    pub origin: Abs,
+    /// How far down the page the tag being handled is.
+    pub tag_y: Abs,
+    /// The markers that have no number yet.
+    markers: Vec<(Abs, Location)>,
+    /// Whether a number was matched since the last marker. The numbers of a column
+    /// come after all of its lines, so a marker after a number starts a new column.
+    numbered: bool,
+}
+
+impl Lines {
+    pub fn start_page(&mut self) {
+        self.origin = Abs::zero();
+        self.markers.clear();
+        self.numbered = false;
+    }
+
+    pub fn add_marker(&mut self, loc: Location) {
+        if self.numbered {
+            self.markers.clear();
+            self.numbered = false;
+        }
+        self.markers.push((self.tag_y, loc));
+    }
+
+    /// The marker of the line that the number at the current tag belongs to. The
+    /// number sits on the baseline of its line, where the marker is, so its tag is
+    /// level with the marker or above it by less than a line.
+    pub fn take_marker(&mut self) -> Option<Location> {
+        let slack = Abs::pt(0.5);
+        let (index, _) = (self.markers.iter().enumerate())
+            .filter(|(_, (y, _))| *y >= self.tag_y - slack)
+            .min_by_key(|(_, (y, _))| *y)?;
+        self.numbered = true;
+        Some(self.markers.remove(index).1)
+    }
 }
 
 impl RefInfo {
@@ -212,6 +258,7 @@ impl Groups {
                 TagKind::Section(_) => Never,
                 TagKind::Div(_) => Never,
                 TagKind::Aside(_) => Never,
+                TagKind::Artifact(_) => Never,
                 TagKind::BlockQuote(_) => Never,
                 TagKind::Caption(_) => Never,
                 TagKind::TOC(_) => Never,

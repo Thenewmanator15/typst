@@ -184,7 +184,7 @@ pub fn build(
 ) -> SourceResult<Tree> {
     let mut tree = TreeBuilder::new(document, options);
     for page in document.pages() {
-        visit_frame(&mut tree, &page.frame)?;
+        visit_page(&mut tree, &page.frame)?;
     }
 
     if let Some(last) = tree.stack.last() {
@@ -242,11 +242,26 @@ pub fn build(
     Ok(tree.finish())
 }
 
+/// Prototype: a page starts with no line markers waiting for their numbers.
+fn visit_page(tree: &mut TreeBuilder, frame: &Frame) -> SourceResult<()> {
+    tree.groups.refs.lines.start_page();
+    visit_frame(tree, frame)
+}
+
 fn visit_frame(tree: &mut TreeBuilder, frame: &Frame) -> SourceResult<()> {
-    for (_, item) in frame.items() {
+    for (pos, item) in frame.items() {
         match item {
-            FrameItem::Group(group) => visit_group_frame(tree, group)?,
+            FrameItem::Group(group) => {
+                // Prototype: how far down the page this is, to match the numbers of
+                // lines to their lines. Only the shift of a transform is followed.
+                let outer = tree.groups.refs.lines.origin;
+                tree.groups.refs.lines.origin += pos.y + group.transform.ty;
+                let result = visit_group_frame(tree, group);
+                tree.groups.refs.lines.origin = outer;
+                result?
+            }
             FrameItem::Tag(typst_library::introspection::Tag::Start(elem, flags)) => {
+                tree.groups.refs.lines.tag_y = tree.groups.refs.lines.origin + pos.y;
                 if flags.tagged {
                     visit_start_tag(tree, elem);
                 } else {
@@ -373,8 +388,15 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
     if let Some(_) = elem.to_packed::<HideElem>() {
         push_artifact(tree, elem, ArtifactType::Other)
     } else if let Some(artifact) = elem.to_packed::<ArtifactElem>() {
-        let kind = artifact.kind.val();
-        push_artifact(tree, elem, kind.to_krilla())
+        let kind = artifact.kind.val().to_krilla();
+        // Prototype: PDF/UA-2 wants an artifact that only means something next to
+        // real content to be an `Artifact` structure element (8.3.2). A line number
+        // is one. Its frame has the line's marker as its logical parent.
+        if kind == ArtifactType::LineNumber && tree.pdf20() {
+            push_line_number(tree, elem, kind)
+        } else {
+            push_artifact(tree, elem, kind)
+        }
     } else if let Some(_) = elem.to_packed::<RepeatElem>() {
         push_artifact(tree, elem, ArtifactType::Layout)
 
@@ -432,6 +454,26 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
             }
         }
         push_group(tree, elem, GroupKind::Link(link.clone(), None))
+    } else if let Some(_) = elem.to_packed::<typst_library::model::ParLineMarker>() {
+        // The number of this line is inserted here, see `push_line_number`.
+        // The number is itself a line of text and so has a marker of its own, which
+        // is not one to hang a number on.
+        let in_number = tree.stack.iter().any(|entry| {
+            matches!(
+                &tree.groups.get(entry.id).kind,
+                GroupKind::Standard(tag, _)
+                    if matches!(tree.groups.tags.get(*tag), TagKind::Artifact(_))
+            )
+        });
+        if tree.pdf20()
+            && !in_number
+            && let Some(loc) = elem.location()
+        {
+            tree.groups.refs.lines.add_marker(loc);
+            push_located(tree, elem, GroupKind::LogicalParent(elem.clone()))
+        } else {
+            no_progress(tree)
+        }
     } else if let Some(_) = elem.to_packed::<BibliographyElem>() {
         // Prototype: PDF/UA-2 wants the section that holds a bibliography to say so
         // with an ARIA role (8.2.5.31). Typst has no sections otherwise.
@@ -667,6 +709,36 @@ fn enum_numbering(numbering: &Numbering, depth: usize) -> ListNumbering {
         Some(System::UpperLatin) => ListNumbering::UpperAlpha,
         _ => ListNumbering::Ordered,
     }
+}
+
+/// Prototype: the number of a line is drawn in the margin after everything else in its
+/// column, but belongs to its line. It becomes an `Artifact` structure element that is
+/// a logical child of the line's marker, as a footnote entry is of its footnote. Layout
+/// cannot say which line a number belongs to without disturbing the line counter, so
+/// the two are matched by where they are on the page.
+fn push_line_number(
+    tree: &mut TreeBuilder,
+    elem: &Content,
+    kind: ArtifactType,
+) -> GroupId {
+    let Some(marker) = tree.groups.refs.lines.take_marker() else {
+        return push_tag(tree, elem, Tag::Artifact(kind));
+    };
+
+    let child = tree.groups.new_virtual(
+        tree.current(),
+        Span::detached(),
+        GroupKind::LogicalChild(Inherit::No, GroupId::INVALID),
+    );
+    tree.logical_children.entry(marker).or_default().push(child);
+
+    let loc = elem.location().expect("elem to have a location");
+    let tag = tree.groups.tags.push(Tag::Artifact(kind));
+    let id = tree
+        .groups
+        .new_virtual(child, elem.span(), GroupKind::Standard(tag, None));
+    remember_location(tree, id, loc);
+    push_stack_entry(tree, Some(loc), id)
 }
 
 fn no_progress(tree: &TreeBuilder) -> GroupId {

@@ -136,9 +136,78 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
         return Err(resolver.errors);
     }
 
-    let children = accum.finish();
+    let mut children = accum.finish();
+    if pdf20 {
+        children = group_into_sections(children);
+    }
 
     Ok((doc_lang, TagTree::from(children)))
+}
+
+/// Prototype: PDF/UA-2 recommends a `Sect` around each section of a document, with its
+/// heading inside (8.2.5.5), so that a reader can skip a section. A heading directly in
+/// the document opens a section that runs to the next heading of the same or a higher
+/// level. A `Sect` that already has its heading, as the bibliography does, counts as a
+/// whole section of that level. Headings inside other elements are left as they are.
+fn group_into_sections(nodes: Vec<Node>) -> Vec<Node> {
+    enum Role {
+        Opens(u16),
+        Whole(u16),
+        Content,
+    }
+
+    fn heading_level(node: &Node) -> Option<u16> {
+        match node {
+            Node::Group(group) => match &group.tag {
+                TagKind::Hn(tag) => Some(tag.level().get()),
+                _ => None,
+            },
+            Node::Leaf(_) => None,
+        }
+    }
+
+    fn close(open: &mut Vec<(u16, kt::TagGroup)>, out: &mut Vec<Node>, level: u16) {
+        while open.last().is_some_and(|(open_level, _)| *open_level >= level) {
+            let (_, section) = open.pop().unwrap();
+            push(open, out, Node::Group(section));
+        }
+    }
+
+    fn push(open: &mut [(u16, kt::TagGroup)], out: &mut Vec<Node>, node: Node) {
+        match open.last_mut() {
+            Some((_, section)) => section.children.push(node),
+            None => out.push(node),
+        }
+    }
+
+    let mut out = Vec::with_capacity(nodes.len());
+    let mut open: Vec<(u16, kt::TagGroup)> = Vec::new();
+    for node in nodes {
+        let role = match &node {
+            Node::Group(group) if matches!(group.tag, TagKind::Section(_)) => {
+                match group.children.first().and_then(heading_level) {
+                    Some(level) => Role::Whole(level),
+                    None => Role::Content,
+                }
+            }
+            node => heading_level(node).map_or(Role::Content, Role::Opens),
+        };
+        match role {
+            Role::Opens(level) => {
+                close(&mut open, &mut out, level);
+                let mut section = kt::TagGroup::new(Tag::Section);
+                section.children.push(node);
+                open.push((level, section));
+            }
+            Role::Whole(level) => {
+                close(&mut open, &mut out, level);
+                push(&mut open, &mut out, node);
+            }
+            Role::Content => push(&mut open, &mut out, node),
+        }
+    }
+    close(&mut open, &mut out, 0);
+    out
 }
 
 /// Resolves nodes into an accumulator.
@@ -192,7 +261,11 @@ fn resolve_group_node(
     // tags, only retaining link tags, because they are required. The inner tags
     // won't be ingested by AT anyway, but would still have to comply with all
     // rules, which can be annoying.
-    let flatten = tag.as_ref().is_some_and(|t| t.alt_text().is_some());
+    // The same goes for an `Artifact` structure element: what is inside it is not real
+    // content, so it has no structure of its own.
+    let flatten = tag
+        .as_ref()
+        .is_some_and(|t| t.alt_text().is_some() || matches!(t, TagKind::Artifact(_)));
     // A `Div` does not count as a parent in PDF 2.0, so it is looked through.
     let outer_no_aside = rs.no_aside;
     rs.no_aside = match &tag {
@@ -367,8 +440,11 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
             // parent, which is what a figure with its caption is.
             //
             // ISO 32005 does not allow an aside in a table cell, a block quote or
-            // another aside (a figure inside a figure). A section is allowed there, so that is used instead, though it is a poorer
-            // fit.
+            // another aside (a figure inside a figure). There the wrapper is a `Sect`,
+            // which ISO 32000-2 defines as a grouping of elements with regard to their
+            // hierarchy, and which is the only grouping element veraPDF accepts there
+            // with a caption in it: `Div`, `Part` and `NonStruct` do not count as the
+            // caption's parent.
             if rs.options.version() >= krilla::configure::PdfVersion::Pdf20 {
                 if rs.no_aside { Tag::Section.into() } else { Tag::Aside.into() }
             } else {
@@ -577,7 +653,9 @@ fn element_kind(tag: &TagKind) -> ElementKind {
         | TagKind::Annot(_)
         | TagKind::Figure(_)
         | TagKind::Formula(_)
-        | TagKind::Form(_) => ElementKind::Inline,
+        | TagKind::Form(_)
+        // What is inside an artifact is not wrapped in a paragraph.
+        | TagKind::Artifact(_) => ElementKind::Inline,
         // Mapped to `Span`.
         TagKind::Datetime(_) => ElementKind::Inline,
         // Mapped to `Part`.
@@ -703,6 +781,7 @@ fn tag_name(tag: &TagKind) -> &'static str {
         TagKind::Section(_) => "section (Section)",
         TagKind::Div(_) => "division (Div)",
         TagKind::Aside(_) => "aside (Aside)",
+        TagKind::Artifact(_) => "artifact (Artifact)",
         TagKind::BlockQuote(_) => "block quote (BlockQuote)",
         TagKind::Caption(_) => "caption (Caption)",
         TagKind::TOC(_) => "outline (TOC)",

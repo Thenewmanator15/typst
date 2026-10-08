@@ -93,7 +93,9 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
             match &group.kind {
                 // What outline entries list.
                 GroupKind::OutlineEntry(entry, _) => {
-                    used.extend(entry.element.location().and_then(|l| refs.target_loc(l)));
+                    used.extend(
+                        entry.element.location().and_then(|l| refs.target_loc(l)),
+                    );
                 }
                 // Headings, which bookmarks lead to.
                 GroupKind::Standard(tag, _)
@@ -353,7 +355,34 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         GroupKind::Formula(equation, _, _) => {
             let alt = equation.alt.opt_ref().map(Into::into);
             let placement = equation.block.val().then_some(kt::Placement::Block);
-            Tag::Formula(alt).with_placement(placement).into()
+            // PDF/UA-2 requires MathML for a mathematical expression. krilla
+            // attaches it to the tag in PDF 2.0 and drops it otherwise.
+            let mut mathml = equation.mathml.clone().flatten().map(String::from);
+            let validators = rs.options.validators();
+            let ua2 =
+                validators.accessibility() == Some(krilla::configure::Accessibility::UA2);
+            if mathml.is_none() && ua2 {
+                rs.errors.push(error!(
+                    equation.span(),
+                    "PDF/UA-2 error: this equation could not be converted to MathML";
+                    hint: "PDF/UA-2 requires MathML for mathematical expressions";
+                    hint: "MathML is only made when `ua-2` is given with `--pdf-standard` on the command line";
+                ));
+            }
+            // The MathML is an attached file, and PDF/A-4 only allows attached
+            // files that are themselves PDF/A.
+            if validators.archival() == Some(krilla::configure::Archival::A4) {
+                if ua2 && mathml.is_some() {
+                    rs.errors.push(error!(
+                        equation.span(),
+                        "PDF/A-4 error: MathML cannot be attached to this equation";
+                        hint: "PDF/UA-2 requires MathML, and PDF/A-4 only allows attached files that are PDF/A";
+                        hint: "use `a-4f` instead of `a-4` together with `ua-2`";
+                    ));
+                }
+                mathml = None;
+            }
+            Tag::Formula(alt).with_placement(placement).with_mathml(mathml).into()
         }
         GroupKind::Link(_, _) => Tag::Link.into(),
         GroupKind::CodeBlock(_) => {

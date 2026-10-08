@@ -38,6 +38,14 @@ pub struct SystemWorld {
 }
 
 impl SystemWorld {
+    /// Tells the compiler to make MathML for equations, which it only does
+    /// when the export will use it.
+    pub fn want_mathml(&mut self) {
+        let mut library = (*self.library).clone();
+        library.styles.set(typst::math::EquationElem::mathml_wanted, true);
+        self.library = LazyHash::new(library);
+    }
+
     /// Creates a new system world.
     pub fn new(
         input: Option<&Input>,

@@ -45,6 +45,9 @@ pub fn compile(command: &'static CompileCommand) -> HintedStrResult<()> {
         &command.args.process,
     )
     .map_err(|err| eco_format!("{err}"))?;
+    if config.pdf_standards.as_ref().is_some_and(|s| s.needs_mathml()) {
+        world.want_mathml();
+    }
     timer.record(&mut world, |world| compile_once(world, &mut config))?
 }
 

@@ -15,6 +15,7 @@ mod fragment;
 mod introspect;
 mod link;
 mod mathml;
+mod mathml_xml;
 mod rules;
 mod typed;
 
@@ -24,4 +25,5 @@ pub use self::encode::{HtmlOptions, html, html_in_bundle};
 pub use self::format::{FORMAT, FrameElem, HtmlElem, HtmlFormat, HtmlFormatOptions};
 pub use self::introspect::HtmlIntrospector;
 pub use self::link::create_link_anchors;
+pub use self::mathml_xml::equation_mathml;
 pub use self::rules::{html_mathml_body, html_span_filled, register};

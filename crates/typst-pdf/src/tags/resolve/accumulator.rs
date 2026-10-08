@@ -17,7 +17,12 @@ pub struct Accumulator {
 impl Accumulator {
     /// Create a new accumulator.
     fn new(nesting: ElementKind, pdf20: bool) -> Self {
-        Self { nesting, buf: Vec::new(), grouping_span: None, pdf20 }
+        Self {
+            nesting,
+            buf: Vec::new(),
+            grouping_span: None,
+            pdf20,
+        }
     }
 
     /// Create a new accumulator.

@@ -444,11 +444,25 @@ pub struct Group {
 
 impl Group {
     fn new(parent: GroupId, span: Span, kind: GroupKind) -> Self {
-        Group { parent, span, kind, loc: None, nodes: Vec::new(), weak: false }
+        Group {
+            parent,
+            span,
+            kind,
+            loc: None,
+            nodes: Vec::new(),
+            weak: false,
+        }
     }
 
     fn weak(parent: GroupId, span: Span, kind: GroupKind) -> Self {
-        Group { parent, span, kind, loc: None, nodes: Vec::new(), weak: true }
+        Group {
+            parent,
+            span,
+            kind,
+            loc: None,
+            nodes: Vec::new(),
+            weak: true,
+        }
     }
 
     pub fn nodes(&self) -> &[TagNode] {

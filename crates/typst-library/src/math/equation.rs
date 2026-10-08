@@ -7,7 +7,8 @@ use typst_utils::NonZeroExt;
 use crate::diag::SourceResult;
 use crate::engine::Engine;
 use crate::foundations::{
-    Content, NativeElement, Packed, ShowSet, Smart, StyleChain, Styles, Synthesize, elem,
+    Content, NativeElement, Packed, ShowSet, Smart, StyleChain, Styles, Synthesize,
+    Target, TargetElem, elem,
 };
 use crate::introspection::{Count, Counter, CounterUpdate};
 use crate::layout::{
@@ -164,10 +165,23 @@ pub struct EquationElem {
     #[ghost]
     pub script_scale: (i16, i16),
 
+    /// Whether to make MathML for equations. It is only used by PDF export
+    /// with a standard that requires it, and whoever starts the compilation
+    /// sets it in the library's styles then.
+    #[internal]
+    #[default(false)]
+    #[ghost]
+    pub mathml_wanted: bool,
+
     /// The locale of this element (used for the alternative description).
     #[internal]
     #[synthesized]
     pub locale: Locale,
+
+    /// Presentation MathML for this equation, for tagged PDF.
+    #[internal]
+    #[synthesized]
+    pub mathml: Option<EcoString>,
 }
 
 impl Synthesize for Packed<EquationElem> {
@@ -188,6 +202,19 @@ impl Synthesize for Packed<EquationElem> {
             .set(Smart::Custom(Some(Supplement::Content(supplement))));
 
         self.locale = Some(Locale::get_in(styles));
+
+        // Only paged export uses this, and a conversion that fails just means
+        // there is no MathML to attach.
+        let mathml = if styles.get(EquationElem::mathml_wanted)
+            && styles.get(TargetElem::target) == Target::Paged
+        {
+            (engine.library.routines.equation_mathml)(self, engine, styles)
+                .ok()
+                .flatten()
+        } else {
+            None
+        };
+        self.mathml = Some(mathml);
 
         Ok(())
     }

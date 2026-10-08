@@ -681,6 +681,17 @@ impl PdfStandards {
     }
 }
 
+impl PdfStandards {
+    /// Whether one of the standards needs MathML for equations.
+    ///
+    /// Making MathML costs about as much as laying the equation out, so the
+    /// compiler only does it when it is told that the export will use it (see
+    /// `EquationElem::mathml_wanted`).
+    pub fn needs_mathml(&self) -> bool {
+        self.standards().any(|standard| standard == PdfStandard::UA_2)
+    }
+}
+
 /// A hint specifying which PDF version a validator is compatible with.
 fn version_hint(validator: krilla::configure::Validator) -> EcoString {
     let min = validator.min();

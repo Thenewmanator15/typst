@@ -2,6 +2,7 @@ use std::fmt::{self, Debug, Formatter};
 use std::hash::{Hash, Hasher};
 
 use comemo::{Tracked, TrackedMut};
+use ecow::EcoString;
 use typst_syntax::{FileId, RangeMapper, Span, SyntaxMode};
 use typst_utils::LazyHash;
 
@@ -9,11 +10,12 @@ use crate::diag::SourceResult;
 use crate::engine::{Engine, Route, Sink, Traced};
 use crate::format::DocumentFormatOptions;
 use crate::foundations::{
-    Args, Closure, Content, Context, Func, NativeRuleMap, Scope, StyleChain, Styles,
-    Value,
+    Args, Closure, Content, Context, Func, NativeRuleMap, Packed, Scope, StyleChain,
+    Styles, Value,
 };
 use crate::introspection::{Introspector, Locator, SplitLocator};
 use crate::layout::{Frame, Region};
+use crate::math::EquationElem;
 use crate::model::DocumentInfo;
 use crate::visualize::Color;
 use crate::{Library, World};
@@ -103,6 +105,13 @@ routines! {
         content: &'a Content,
         styles: StyleChain<'a>,
     ) -> Option<Option<&'a Content>>
+
+    /// Converts an equation to presentation MathML as an XML string.
+    fn equation_mathml(
+        elem: &Packed<EquationElem>,
+        engine: &mut Engine,
+        styles: StyleChain,
+    ) -> SourceResult<Option<EcoString>>
 
     /// Wraps content in a span with a color.
     ///

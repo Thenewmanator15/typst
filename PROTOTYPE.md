@@ -19,6 +19,16 @@ verapdf --flavour ua2 document.pdf
 What it does, what it was checked with and what it does not show are written up at
 https://thenewmanator15.github.io/typst-pdf-ua2/.
 
+Equations get presentation MathML, which PDF/UA-2 requires (8.2.5.29.1). It is made by the
+converter that HTML export already has (`typst-html/src/mathml.rs`), written out as XML and
+attached to the `Formula` tag as an associated file. With it, an equation no longer needs
+`alt` for PDF/UA-2. Because making MathML costs about as much as laying an equation out, it
+is only made when `ua-2` is given with `--pdf-standard` on the command line: the CLI then
+sets an internal style, `EquationElem::mathml_wanted`. A `set pdf(standard: "ua-2")` rule in
+the document does not switch it on, and export then stops with an error. Together with
+PDF/A-4 the standard has to be `a-4f`, because PDF/A-4 only allows attached files that are
+PDF/A themselves.
+
 Known shortcuts: links split over two lines and footnotes that run on to another page are
 handled but not covered by a test document; a paragraph that turns out empty would leave a
 reference to nothing; term lists still fail PDF/UA-2 (8.2.5.25). `tests/src/run.rs` has a

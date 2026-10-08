@@ -75,6 +75,7 @@ pub fn convert(
         typst_document,
         anchors,
         &page_index_converter,
+        &tags,
     );
 
     let mut gc = GlobalContext::new(
@@ -847,6 +848,7 @@ fn collect_named_destinations(
     typst_document: &PagedDocument,
     anchors: &[(Location, EcoString)],
     pic: &PageIndexConverter,
+    tags: &crate::tags::Tags,
 ) -> FxHashMap<Location, NamedDestination> {
     let mut locs_to_names = FxHashMap::default();
 
@@ -872,6 +874,11 @@ fn collect_named_destinations(
             .position(loc)
             .unwrap_or(PagedPosition::ORIGIN);
         if let Some(dest) = crate::link::pos_to_xyz(pic, pos) {
+            // Prototype: lead to the element's tag when it has one.
+            let dest = match tags.tree.groups.refs.target(loc) {
+                Some(id) => dest.with_tag(id),
+                None => dest,
+            };
             let named = NamedDestination::new(name, dest);
             // The option is `None` if the destination is a duplicate which
             // should not happen because we filtered them on a set insert above,

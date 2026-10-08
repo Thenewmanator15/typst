@@ -380,6 +380,18 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
             PdfMarkerTagKind::Label => push_tag(tree, elem, Tag::Lbl),
         }
     } else if let Some(link) = elem.to_packed::<LinkMarker>() {
+        // Prototype: the link with a footnote's number stands for the footnote.
+        let footnote = (tree.stack.iter().rev()).find_map(|entry| {
+            let GroupKind::LogicalParent(parent) = &tree.groups.get(entry.id).kind else {
+                return None;
+            };
+            parent.to_packed::<FootnoteElem>().and(entry.loc)
+        });
+        if let Some(footnote) = footnote
+            && let Some(link_loc) = elem.location()
+        {
+            tree.groups.refs.alias.entry(footnote).or_insert(link_loc);
+        }
         push_group(tree, elem, GroupKind::Link(link.clone(), None))
     } else if let Some(_) = elem.to_packed::<TitleElem>() {
         push_tag(tree, elem, Tag::Title)
@@ -560,7 +572,27 @@ fn push_group(tree: &mut TreeBuilder, elem: &Content, kind: GroupKind) -> GroupI
     let span = elem.span();
     let parent = tree.current();
     let id = tree.groups.new_virtual(parent, span, kind);
+    remember_location(tree, id, loc);
     push_stack_entry(tree, Some(loc), id)
+}
+
+/// Prototype: note which element a group belongs to, so that its tag can get an id.
+fn remember_location(tree: &mut TreeBuilder, id: GroupId, loc: Location) {
+    let group = tree.groups.get_mut(id);
+    group.loc = Some(loc);
+    let has_tag = !matches!(
+        group.kind,
+        GroupKind::Root(..)
+            | GroupKind::Artifact(..)
+            | GroupKind::LogicalParent(..)
+            | GroupKind::LogicalChild(..)
+            | GroupKind::TextAttr(..)
+            | GroupKind::Transparent
+            | GroupKind::TableCell(..)
+    );
+    if has_tag {
+        tree.groups.refs.tag_locs.entry(loc).or_insert(id);
+    }
 }
 
 fn push_located(tree: &mut TreeBuilder, elem: &Content, kind: GroupKind) -> GroupId {
@@ -568,6 +600,7 @@ fn push_located(tree: &mut TreeBuilder, elem: &Content, kind: GroupKind) -> Grou
     let span = elem.span();
     let parent = tree.current();
     let id = tree.groups.new_located(loc, parent, span, kind);
+    remember_location(tree, id, loc);
     push_stack_entry(tree, Some(loc), id)
 }
 

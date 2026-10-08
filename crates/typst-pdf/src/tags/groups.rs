@@ -34,6 +34,37 @@ pub struct Groups {
     locations: FxHashMap<Location, LocatedGroup>,
     pub list: IdVec<Group>,
     pub tags: TagStorage,
+    /// What the tags need to know to refer to each other.
+    pub refs: RefInfo,
+}
+
+/// Prototype: which elements have a tag, and which links lead where.
+#[derive(Debug, Default)]
+pub struct RefInfo {
+    /// The first group that produces a tag for the element at a location. Its tag gets
+    /// an id made from the location, see [`tag_id`].
+    pub tag_locs: FxHashMap<Location, GroupId>,
+    /// The location a link group leads to.
+    pub link_dests: FxHashMap<GroupId, Location>,
+    /// The locations of the link groups that lead to a location.
+    pub citations: FxHashMap<Location, Vec<Location>>,
+    /// Locations that have no tag of their own and stand for another one. A footnote
+    /// has no tag where it is cited, only the link with its number has, so the
+    /// footnote's location stands for that link.
+    pub alias: FxHashMap<Location, Location>,
+}
+
+impl RefInfo {
+    /// The id of the tag that the location leads to, if there is one.
+    pub fn target(&self, loc: Location) -> Option<krilla::tagging::TagId> {
+        let loc = self.alias.get(&loc).copied().unwrap_or(loc);
+        self.tag_locs.contains_key(&loc).then(|| tag_id(loc))
+    }
+}
+
+/// The id of the tag of the element at a location.
+pub fn tag_id(loc: Location) -> krilla::tagging::TagId {
+    krilla::tagging::TagId::from(format!("L{:x}", loc.hash()).into_bytes())
 }
 
 impl Groups {
@@ -41,6 +72,7 @@ impl Groups {
         Self {
             locations: FxHashMap::default(),
             list: IdVec::new(),
+            refs: RefInfo::default(),
             tags: TagStorage::new(),
         }
     }
@@ -370,6 +402,8 @@ pub struct Group {
     pub parent: GroupId,
     pub span: Span,
     pub kind: GroupKind,
+    /// The location of the element this group was made for.
+    pub loc: Option<Location>,
     /// Only allow mutating this list through the API, to ensure the parent
     /// will be set for child groups.
     nodes: Vec<TagNode>,
@@ -380,11 +414,11 @@ pub struct Group {
 
 impl Group {
     fn new(parent: GroupId, span: Span, kind: GroupKind) -> Self {
-        Group { parent, span, kind, nodes: Vec::new(), weak: false }
+        Group { parent, span, kind, loc: None, nodes: Vec::new(), weak: false }
     }
 
     fn weak(parent: GroupId, span: Span, kind: GroupKind) -> Self {
-        Group { parent, span, kind, nodes: Vec::new(), weak: true }
+        Group { parent, span, kind, loc: None, nodes: Vec::new(), weak: true }
     }
 
     pub fn nodes(&self) -> &[TagNode] {

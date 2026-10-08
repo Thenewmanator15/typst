@@ -72,6 +72,11 @@ fn convert_node(
     };
 
     if let Some(dest) = crate::link::pos_to_xyz(&gc.page_index_converter, pos) {
+        // Prototype: lead to the heading's tag when it has one.
+        let dest = match gc.tags.tree.groups.refs.target(loc) {
+            Some(id) => dest.with_tag(id),
+            None => dest,
+        };
         let mut outline_node = KrillaOutlineNode::new(title, dest);
         for child in convert_list(&node.children, gc) {
             outline_node.push_child(child);

@@ -12,7 +12,7 @@ use typst_syntax::Span;
 use crate::PdfOptions;
 use crate::convert::{GlobalContext, to_span};
 use crate::tags::context::{self, Annotations, BBoxCtx, Ctx};
-use crate::tags::groups::{Group, GroupId, GroupKind, TagStorage};
+use crate::tags::groups::{Group, GroupId, GroupKind, RefInfo, TagStorage, tag_id};
 use crate::tags::resolve::accumulator::Accumulator;
 use crate::tags::tree::ResolvedTextAttrs;
 use crate::tags::util::{self, IdVec, PropertyOptRef, PropertyValCopied};
@@ -37,6 +37,7 @@ struct Resolver<'a> {
     options: &'a PdfOptions<Complete>,
     ctx: &'a Ctx,
     groups: &'a IdVec<Group>,
+    refs: &'a RefInfo,
     tags: &'a mut TagStorage,
     annotations: &'a mut Annotations,
     last_heading_level: Option<NonZeroU16>,
@@ -72,6 +73,7 @@ pub fn resolve(gc: &mut GlobalContext) -> SourceResult<(Option<Locale>, TagTree)
         options: gc.options,
         ctx: &gc.tags.tree.ctx,
         groups: &gc.tags.tree.groups.list,
+        refs: &gc.tags.tree.groups.refs,
         tags: &mut gc.tags.tree.groups.tags,
         annotations: &mut gc.tags.annotations,
         last_heading_level: None,
@@ -128,7 +130,7 @@ fn resolve_group_node(
 ) {
     let group = rs.groups.get(id);
 
-    let tag = build_group_tag(rs, group);
+    let tag = build_group_tag(rs, id, group);
     let mut lang = group.kind.lang().filter(|_| tag.is_some());
     let mut bbox = rs.ctx.bbox(&group.kind).cloned();
 
@@ -276,7 +278,7 @@ fn resolve_artifact_node(
     }
 }
 
-fn build_group_tag(rs: &mut Resolver, group: &Group) -> Option<TagKind> {
+fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagKind> {
     let tag = match &group.kind {
         GroupKind::Root(_) => unreachable!(),
         GroupKind::Artifact(_) => return None,
@@ -317,7 +319,40 @@ fn build_group_tag(rs: &mut Resolver, group: &Group) -> Option<TagKind> {
         GroupKind::Standard(tag, _) => rs.tags.take(*tag),
     };
 
-    let tag = tag.with_location(Some(group.span.into_raw()));
+    let mut tag = tag.with_location(Some(group.span.into_raw()));
+
+    // Prototype: the tag of an element gets an id made from the element's location, so
+    // that destinations and other tags can refer to it.
+    let refs = rs.refs;
+    if let Some(loc) = group.loc
+        && refs.tag_locs.get(&loc) == Some(&id)
+        && tag.as_any().id().is_none()
+    {
+        tag.as_any_mut().set_id(Some(tag_id(loc)));
+    }
+    let targets: Vec<kt::TagId> = match &group.kind {
+        // An outline entry refers to the element it lists.
+        GroupKind::OutlineEntry(entry, _) => (entry.element.location())
+            .and_then(|target| refs.target(target))
+            .into_iter()
+            .collect(),
+        // A link refers to the element it leads to.
+        GroupKind::Link(..) => (refs.link_dests.get(&id).copied())
+            .and_then(|target| refs.target(target))
+            .into_iter()
+            .collect(),
+        // A footnote refers back to the links that lead to it.
+        _ if matches!(tag, TagKind::Note(_)) => (group.loc)
+            .and_then(|loc| refs.citations.get(&loc))
+            .into_iter()
+            .flatten()
+            .filter_map(|citing| refs.target(*citing))
+            .collect(),
+        _ => Vec::new(),
+    };
+    if !targets.is_empty() {
+        tag.as_any_mut().set_refs(Some(targets));
+    }
 
     if rs.flatten && !group.kind.is_link() {
         return None;

@@ -69,9 +69,18 @@ pub(crate) fn handle_link(
                 let Some(dest) = pos_to_xyz(&gc.page_index_converter, pos) else {
                     return Ok(());
                 };
+                // Prototype: lead to the element's tag when it has one.
+                let dest = match gc.tags.tree.groups.refs.target(*loc) {
+                    Some(id) => dest.with_tag(id),
+                    None => dest,
+                };
                 Target::Destination(krilla::destination::Destination::Xyz(dest))
             }
         }
+    };
+    let dest_loc = match dest {
+        Destination::Location(loc) => Some(*loc),
+        _ => None,
     };
 
     let rect = bounding_box(fc, size);
@@ -107,12 +116,24 @@ pub(crate) fn handle_link(
         .expect_internal("expected link ancestor in logical tree")
         .at(Span::detached())?;
     let alt = link.alt.as_ref().map(Into::into);
+    let link_span = link.span();
+    let link_loc = link.location();
+
+    // Prototype: remember what this link leads to, for the refs of the tags.
+    if let Some(dest_loc) = dest_loc {
+        let refs = &mut gc.tags.tree.groups.refs;
+        if refs.link_dests.insert(group_id, dest_loc).is_none()
+            && let Some(link_loc) = link_loc
+        {
+            refs.citations.entry(dest_loc).or_default().push(link_loc);
+        }
+    }
 
     if gc.tags.tree.parent_artifact().is_some() {
         if let Some(accessibility) = gc.options.validators().accessibility() {
             let validator = accessibility.as_str();
             bail!(
-                link.span(),
+                link_span,
                 "{validator} error: PDF artifacts may not contain links";
                 hint: "references, citations, and footnotes \
                        are also considered links in PDF";
@@ -124,7 +145,7 @@ pub(crate) fn handle_link(
             LinkAnnotation {
                 kind: LinkAnnotationKind::Artifact,
                 alt,
-                span: link.span(),
+                span: link_span,
                 rects: vec![rect],
                 target,
             },
@@ -152,7 +173,7 @@ pub(crate) fn handle_link(
                 LinkAnnotation {
                     kind: LinkAnnotationKind::Tagged(annot_id),
                     alt,
-                    span: link.span(),
+                    span: link_span,
                     rects: vec![rect],
                     target,
                 },

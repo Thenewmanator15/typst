@@ -30,16 +30,29 @@ impl Accumulator {
         Self::new(ElementKind::Grouping, pdf20)
     }
 
-    /// Create a new nested accumulator. This will flush any intermediate
-    /// grouping span, to ensure correct ordering of nested groups.
-    pub fn nest(&mut self, nesting: ElementKind) -> Self {
-        self.flush_grouping_span();
+    /// Create a new nested accumulator for the children of an element with the
+    /// given tag. This will flush any intermediate grouping span, to ensure
+    /// correct ordering of nested groups.
+    ///
+    /// Prototype: unless the element will join that span itself, as a link in
+    /// loose text does in PDF 2.0. Flushing then would end the paragraph in the
+    /// middle of a sentence.
+    pub fn nest(&mut self, nesting: ElementKind, tag: &TagKind) -> Self {
+        let joins = self.pdf20 && self.nesting == ElementKind::Grouping && is_phrase(tag);
+        if !joins {
+            self.flush_grouping_span();
+        }
         Self::new(nesting, self.pdf20)
     }
 
     /// Flush any intermediate grouping span into the nodes array.
     fn flush_grouping_span(&mut self) {
         if let Some(span_nodes) = self.grouping_span.take() {
+            // Line numbers with no text between them need no paragraph around them.
+            if span_nodes.iter().all(is_artifact_element) {
+                self.buf.extend(span_nodes);
+                return;
+            }
             let tag: TagKind = if self.pdf20 {
                 Tag::P.into()
             } else {
@@ -110,6 +123,12 @@ fn is_phrase(tag: &TagKind) -> bool {
             | TagKind::Code(_)
             | TagKind::Link(_)
             | TagKind::Reference(_)
-            | TagKind::Annot(_)
+            // The number of a line, which sits between the lines of loose text
+            // and must not split them into a paragraph each.
+            | TagKind::Artifact(_)
     ) && tag.placement() != Some(kt::Placement::Block)
+}
+
+fn is_artifact_element(node: &Node) -> bool {
+    matches!(node, Node::Group(group) if matches!(group.tag, TagKind::Artifact(_)))
 }

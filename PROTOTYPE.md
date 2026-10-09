@@ -53,9 +53,16 @@ marker it is level with (`push_line_number`). Setting a frame parent on the numb
 layout would have been simpler, but it takes the number's counter update out of order and
 every line then shows 0.
 
-Not done: when an equation is given `alt`, its number is not labelled, because tags inside
-an element with an alternative description are left out. Headings inside other elements,
-such as a block, are not grouped into sections.
+The label of an equation number is kept when the equation has `alt`, which removes the
+other tags inside it. Headings inside a `Div`, such as a grid cell, open sections too; a
+block, columns or padding produce no tag, so headings in them already did. A link, or a
+line number, in loose text (text that is not a paragraph of its own, as inside `pad` or
+`move`) no longer ends the `P` that the exporter puts around that text. Line numbers were
+tried under `move`, `rotate`, `scale` and `pad`; the exporter measures positions the way
+layout does when it places the numbers, without transforms.
+
+Not done: headings inside a table cell, a list item, a quote or a figure do not open a
+section.
 
 Known shortcuts: links split over two lines and footnotes that run on to another page are
 handled but not covered by a test document; a paragraph that turns out empty would leave a

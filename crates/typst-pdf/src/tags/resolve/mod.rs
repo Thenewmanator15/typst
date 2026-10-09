@@ -182,7 +182,16 @@ fn group_into_sections(nodes: Vec<Node>) -> Vec<Node> {
 
     let mut out = Vec::with_capacity(nodes.len());
     let mut open: Vec<(u16, kt::TagGroup)> = Vec::new();
-    for node in nodes {
+    for mut node in nodes {
+        // A `Div`, such as a grid or one of its cells, does not count as an element
+        // of its own in PDF 2.0, so the headings inside it are looked at too. A
+        // section that starts in a `Div` ends with it.
+        if let Node::Group(group) = &mut node
+            && matches!(group.tag, TagKind::Div(_))
+            && group.tag.alt_text().is_none()
+        {
+            group.children = group_into_sections(std::mem::take(&mut group.children));
+        }
         let role = match &node {
             Node::Group(group) if matches!(group.tag, TagKind::Section(_)) => {
                 match group.children.first().and_then(heading_level) {
@@ -252,7 +261,7 @@ fn resolve_group_node(
     let mut nested_children = None;
     let children = if let Some(tag) = &tag {
         let nesting = element_kind(tag);
-        nested_children.insert(accum.nest(nesting))
+        nested_children.insert(accum.nest(nesting, tag))
     } else {
         &mut *accum
     };
@@ -574,7 +583,7 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         tag.as_any_mut().set_refs(Some(targets));
     }
 
-    if rs.flatten && !group.kind.is_link() {
+    if rs.flatten && !group.kind.is_link() && !rs.refs.equation_numbers.contains(&id) {
         return None;
     }
 

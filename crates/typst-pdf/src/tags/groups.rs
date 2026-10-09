@@ -67,6 +67,10 @@ pub struct RefInfo {
     pub internal_links: rustc_hash::FxHashSet<Location>,
     /// Where the markers of numbered lines are on the page being visited.
     pub lines: Lines,
+    /// The labels that hold the number of a numbered equation. They are kept when
+    /// the equation has an alternative description, which removes the other tags
+    /// inside it.
+    pub equation_numbers: rustc_hash::FxHashSet<GroupId>,
 }
 
 /// Prototype: where the markers of lines are on the current page, see

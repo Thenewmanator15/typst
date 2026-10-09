@@ -253,9 +253,10 @@ fn visit_frame(tree: &mut TreeBuilder, frame: &Frame) -> SourceResult<()> {
         match item {
             FrameItem::Group(group) => {
                 // Prototype: how far down the page this is, to match the numbers of
-                // lines to their lines. Only the shift of a transform is followed.
+                // lines to their lines. Transforms are left out, as they are where
+                // layout places the numbers (`find_in_frame` in the flow composer).
                 let outer = tree.groups.refs.lines.origin;
-                tree.groups.refs.lines.origin += pos.y + group.transform.ty;
+                tree.groups.refs.lines.origin += pos.y;
                 let result = visit_group_frame(tree, group);
                 tree.groups.refs.lines.origin = outer;
                 result?
@@ -431,7 +432,9 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
             PdfMarkerTagKind::Label => push_tag(tree, elem, Tag::Lbl),
             PdfMarkerTagKind::EquationNumber => {
                 if tree.pdf20() {
-                    push_tag(tree, elem, Tag::Lbl)
+                    let id = push_tag(tree, elem, Tag::Lbl);
+                    tree.groups.refs.equation_numbers.insert(id);
+                    id
                 } else {
                     no_progress(tree)
                 }

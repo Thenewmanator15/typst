@@ -48,6 +48,9 @@ pub fn watch(command: &'static WatchCommand) -> HintedStrResult<()> {
             Err(err) => return Err(err.into()),
         }
     };
+    if config.pdf_standards.as_ref().is_some_and(|s| s.needs_mathml()) {
+        world.want_mathml();
+    }
 
     // Eagerly scan fonts if we expect to need them so that it's not counted as
     // part of the displayed compilation time. The duration of font scanning is

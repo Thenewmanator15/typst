@@ -4,7 +4,7 @@ use codex::styling::MathVariant;
 use ecow::EcoString;
 use typst_utils::NonZeroExt;
 
-use crate::diag::SourceResult;
+use crate::diag::{Severity, SourceResult};
 use crate::engine::Engine;
 use crate::foundations::{
     Content, NativeElement, Packed, ShowSet, Smart, StyleChain, Styles, Synthesize,
@@ -203,8 +203,7 @@ impl Synthesize for Packed<EquationElem> {
 
         self.locale = Some(Locale::get_in(styles));
 
-        // Only paged export uses this, and a conversion that fails just means
-        // there is no MathML to attach.
+        // Only paged export uses this.
         // Asked for by whoever started the compilation, or by a set rule of a
         // format, such as `set pdf(standard: "ua-2")`.
         let wanted = styles.get(EquationElem::mathml_wanted)
@@ -214,9 +213,18 @@ impl Synthesize for Packed<EquationElem> {
                 .iter()
                 .any(|format| format.wants_mathml(styles));
         let mathml = if wanted && styles.get(TargetElem::target) == Target::Paged {
-            (engine.library.routines.equation_mathml)(self, engine, styles)
-                .ok()
-                .flatten()
+            match (engine.library.routines.equation_mathml)(self, engine, styles) {
+                Ok(mathml) => mathml,
+                // Not an error here: PDF export reports the missing MathML if
+                // the equation ends up in the tag tree, and this says why.
+                Err(errors) => {
+                    for mut diag in errors {
+                        diag.severity = Severity::Warning;
+                        engine.sink.warn(diag);
+                    }
+                    None
+                }
+            }
         } else {
             None
         };

@@ -75,13 +75,26 @@ impl FigureCtx {
 /// element inside it.
 ///
 /// The groups have no child lists yet at this point, only parent pointers, so this
-/// cannot see marked content that sits directly in a figure next to its one element.
+/// cannot see marked content that sits directly in a figure next to its one element,
+/// nor whether a weak group will turn out empty and be left out. Where it cannot tell,
+/// it errs towards treating the figure as untagged: a link then leads to the element
+/// inside the figure, which has a tag of its own, rather than to a figure tag that may
+/// not be written.
 pub fn alias_untagged_figures(tree: &mut Tree) {
+    // Weak groups are looked through: an empty one is left out, and one with content
+    // has no meaning of its own, so either way only what is inside it counts.
     let mut children: rustc_hash::FxHashMap<GroupId, Vec<GroupId>> = Default::default();
     for id in tree.groups.list.ids() {
         let group = tree.groups.get(id);
-        if id != GroupId::ROOT && !matches!(group.kind, GroupKind::FigureCaption(..)) {
-            children.entry(group.parent).or_default().push(id);
+        if id != GroupId::ROOT
+            && !group.weak
+            && !matches!(group.kind, GroupKind::FigureCaption(..))
+        {
+            let mut parent = group.parent;
+            while parent != GroupId::ROOT && tree.groups.get(parent).weak {
+                parent = tree.groups.get(parent).parent;
+            }
+            children.entry(parent).or_default().push(id);
         }
     }
 

@@ -148,4 +148,6 @@ pdf_marker_tag! {
     Label,
     /// The number of a numbered equation, an `Lbl` in PDF 2.0.
     EquationNumber,
+    /// The filler of an outline entry, an artifact in PDF 2.0.
+    OutlineFiller,
 }

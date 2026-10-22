@@ -122,6 +122,19 @@ impl RefInfo {
         self.target_loc(loc).map(tag_id)
     }
 
+    /// The destination, leading to the tag of the element at the location when it has
+    /// one.
+    pub fn tag_dest(
+        &self,
+        dest: krilla::destination::XyzDestination,
+        loc: Location,
+    ) -> krilla::destination::XyzDestination {
+        match self.target(loc) {
+            Some(id) => dest.with_tag(id),
+            None => dest,
+        }
+    }
+
     /// The location of the element whose tag the location leads to, if there is one.
     pub fn target_loc(&self, loc: Location) -> Option<Location> {
         // An alias can lead to another alias, when what it stood for lost its tag.

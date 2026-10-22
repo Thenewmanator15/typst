@@ -875,10 +875,7 @@ fn collect_named_destinations(
             .unwrap_or(PagedPosition::ORIGIN);
         if let Some(dest) = crate::link::pos_to_xyz(pic, pos) {
             // Prototype: lead to the element's tag when it has one.
-            let dest = match tags.tree.groups.refs.target(loc) {
-                Some(id) => dest.with_tag(id),
-                None => dest,
-            };
+            let dest = tags.tree.groups.refs.tag_dest(dest, loc);
             let named = NamedDestination::new(name, dest);
             // The option is `None` if the destination is a duplicate which
             // should not happen because we filtered them on a set insert above,

@@ -439,6 +439,15 @@ fn progress_tree_start(tree: &mut TreeBuilder, elem: &Content) -> GroupId {
                     no_progress(tree)
                 }
             }
+            // PDF/UA-2 wants leaders to be artifacts (8.2.5.8). Older versions keep the
+            // filler as content, as Typst has always written it.
+            PdfMarkerTagKind::OutlineFiller => {
+                if tree.pdf20() {
+                    push_artifact(tree, elem, ArtifactType::Other)
+                } else {
+                    no_progress(tree)
+                }
+            }
         }
     } else if let Some(link) = elem.to_packed::<LinkMarker>() {
         // Prototype: the link with a footnote's number stands for the footnote.
@@ -784,7 +793,11 @@ fn remember_location(tree: &mut TreeBuilder, id: GroupId, loc: Location) {
             | GroupKind::Transparent
             | GroupKind::TableCell(..)
     );
-    if has_tag {
+    // What is inside an artifact is left out of the tag tree, so it has no tag to lead
+    // to. A link to it leads to the enclosing element instead (see `alias_untagged`).
+    let in_artifact =
+        (tree.stack.iter()).any(|entry| tree.groups.get(entry.id).kind.is_artifact());
+    if has_tag && !in_artifact {
         tree.groups.refs.tag_locs.entry(loc).or_insert(id);
     }
 }

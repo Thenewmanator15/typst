@@ -70,10 +70,7 @@ pub(crate) fn handle_link(
                     return Ok(());
                 };
                 // Prototype: lead to the element's tag when it has one.
-                let dest = match gc.tags.tree.groups.refs.target(*loc) {
-                    Some(id) => dest.with_tag(id),
-                    None => dest,
-                };
+                let dest = gc.tags.tree.groups.refs.tag_dest(dest, *loc);
                 Target::Destination(krilla::destination::Destination::Xyz(dest))
             }
         }

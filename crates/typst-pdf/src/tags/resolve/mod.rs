@@ -475,18 +475,22 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
             let validators = rs.options.validators();
             let ua2 =
                 validators.accessibility() == Some(krilla::configure::Accessibility::UA2);
-            if mathml.is_none() && ua2 {
+            // Inside an element with an alternative description, the tag is left
+            // out below, so its MathML is never written and cannot be missing.
+            let written = !rs.flatten;
+            if mathml.is_none() && ua2 && written {
                 rs.errors.push(error!(
                     equation.span(),
-                    "PDF/UA-2 error: this equation could not be converted to MathML";
+                    "PDF/UA-2 error: this equation has no MathML";
                     hint: "PDF/UA-2 requires MathML for mathematical expressions";
                     hint: "MathML is only made when `ua-2` is given with `--pdf-standard` on the command line or in a `set pdf` rule at the start of the document";
+                    hint: "if it could not be made, a warning says why";
                 ));
             }
             // The MathML is an attached file, and PDF/A-4 only allows attached
             // files that are themselves PDF/A.
             if validators.archival() == Some(krilla::configure::Archival::A4) {
-                if ua2 && mathml.is_some() {
+                if ua2 && mathml.is_some() && written {
                     rs.errors.push(error!(
                         equation.span(),
                         "PDF/A-4 error: MathML cannot be attached to this equation";

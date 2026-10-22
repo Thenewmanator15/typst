@@ -78,8 +78,8 @@ indexmap = { version = "2", features = ["serde", "rayon"] }
 infer = { version = "0.19.0", default-features = false }
 itoa = "1"
 kamadak-exif = "0.6"
-krilla = { git = "https://github.com/Thenewmanator15/krilla", rev = "5cac5fcdfdcdf48776b852ec7a5fa67eeda401eb", default-features = false, features = ["raster-images", "comemo", "rayon", "pdf"] }
-krilla-svg = { git = "https://github.com/Thenewmanator15/krilla", rev = "5cac5fcdfdcdf48776b852ec7a5fa67eeda401eb" }
+krilla = { git = "https://github.com/Thenewmanator15/krilla", rev = "354a46fc05bc3d2f8cd07d6078f672994c93359e", default-features = false, features = ["raster-images", "comemo", "rayon", "pdf"] }
+krilla-svg = { git = "https://github.com/Thenewmanator15/krilla", rev = "354a46fc05bc3d2f8cd07d6078f672994c93359e" }
 kurbo = "0.13"
 libfuzzer-sys = "0.4"
 libm = "0.2.11"

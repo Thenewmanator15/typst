@@ -5,7 +5,7 @@ f1ff5cbe23faec1877243020a3e1e6cd align-right
 3c5e3609bbae8b694e2abcdfe8c99fef array-basic-syntax
 fd98d7b640c43c30514608ad28d92331 array-join-content
 6de8a1f1bcd3675d8e262782d7468c46 background-artifact-1-7
-9247cba98bc56d8177e3568731eacafb background-artifact-2-0
+23659b48a3eea8623f1c2fd447ea8316 background-artifact-2-0
 e78cebdb3cb805d9ea44999c9039d548 baseline-box
 ad26ef78699cd243f9586fdcb3ba1c2f baseline-box-align
 7781bcafc33e137c4a677b6d7c6a4abf baseline-breakable-display-math
@@ -944,7 +944,7 @@ e5292b436ab38185e365b8dd794cec92 line-numbers-margin
 04c5e859cd260867f356e52318c85b36 line-numbers-page-scope
 dd06999074060e19e8c2ddbcc88dcdf0 line-numbers-page-scope-quasi-empty-first-column
 650110f1c1de79770174262776d53885 line-numbers-page-scope-with-columns
-8379755d3ca8325db0a2a58809642952 line-numbers-pdf-2-0
+fb5abdad2c5d446bc54a36a542b1faae line-numbers-pdf-2-0
 d190e120731dd688c8f86840bd71c2de line-numbers-place-out-of-order
 86e4ce6440aff41e3311e0d7565853ff line-numbers-rtl
 7c112d51bb602dbf97300c77422b38ac line-numbers-start-alignment

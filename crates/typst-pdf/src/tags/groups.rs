@@ -311,6 +311,7 @@ impl Groups {
                 TagKind::Title(_) => Never,
                 TagKind::Strong(_) => Always(BreakPriority::Span),
                 TagKind::Em(_) => Always(BreakPriority::Span),
+                TagKind::Sub(_) => Never,
             },
         }
     }

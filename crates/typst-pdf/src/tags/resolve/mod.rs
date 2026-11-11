@@ -512,7 +512,15 @@ fn build_group_tag(rs: &mut Resolver, id: GroupId, group: &Group) -> Option<TagK
         GroupKind::CodeBlock(_) => {
             Tag::Code.with_placement(Some(kt::Placement::Block)).into()
         }
-        GroupKind::CodeBlockLine(_) => Tag::P.into(),
+        // PDF/UA-2 does not allow a `P` inside `Code`. PDF 2.0 has `Sub` for the
+        // lines of a block, and older versions keep `P`.
+        GroupKind::CodeBlockLine(_) => {
+            if rs.options.version() >= krilla::configure::PdfVersion::Pdf20 {
+                Tag::Sub.into()
+            } else {
+                Tag::P.into()
+            }
+        }
         GroupKind::Par(_) => Tag::P.into(),
         GroupKind::TextAttr(_) => return None,
         GroupKind::Transparent => return None,
@@ -677,6 +685,8 @@ fn element_kind(tag: &TagKind) -> ElementKind {
         TagKind::Title(_) => ElementKind::Block,
         // Mapped to `Span`.
         TagKind::Strong(_) | TagKind::Em(_) => ElementKind::Inline,
+        // A line of a code block, which holds only text.
+        TagKind::Sub(_) => ElementKind::Inline,
     }
 }
 
@@ -830,5 +840,6 @@ fn tag_name(tag: &TagKind) -> &'static str {
         TagKind::Title(_) => "title (Title)",
         TagKind::Strong(_) => "strong (Strong/Span)",
         TagKind::Em(_) => "emph (Em/Span)",
+        TagKind::Sub(_) => "raw line (Sub/Span)",
     }
 }

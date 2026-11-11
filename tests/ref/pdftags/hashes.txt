@@ -93,6 +93,7 @@ c84ca6499156caae240d49e479012d62 query-tags-duplicate-labelled-element
 28246634e0f372da8d5bf731bdfa820f quote-dir-align
 462ca2df0a461ede39d2d9af76ce6d19 quote-dir-author-pos
 39a38207dbd90e53b1e249d95d369848 raw-tags-basic-block
+cf913f984a39e7fbecfb80de2843ed31 raw-tags-basic-block-ua-2
 4d5040b30582996159517cbc049e7994 raw-tags-basic-inline
 8efa36d951d964961f8829cda55209e9 table-tags-basic
 efbb6418387cf90300ca31f87b9ce91b table-tags-column-and-row-header
